@@ -1,0 +1,25 @@
+# Build
+/build/
+/build_tests/
+/install/
+
+# IDE
+/.vscode/
+/.vs/
+/.idea/
+/cmake-build-*/
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# Result
+/results/
+*.csv
+*.mp4
+*.avi
+
+# System
+.DS_Store
+Thumbs.db
