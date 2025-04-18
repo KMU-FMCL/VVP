@@ -17,8 +17,6 @@
 # Result
 /results/
 *.csv
-*.mp4
-*.avi
 
 # System
 .DS_Store
