@@ -1,0 +1,18 @@
+io:
+  useCamera: false        # false: file input, true: camera input
+  cameraPort: 0           # camera device index
+  inputFilePath: "./data/test.mp4"  # input video file path
+  scale: 2                # image downscale factor
+  saveResults: true       # save CSV and video results
+
+hog:
+  binCount: 180           # histogram bin count
+  thresholdValue: 0.25    # magnitude threshold for binary filtering
+  blurKernelSize: 11      # Gaussian blur kernel size
+  blurSigma: 3.0          # Gaussian blur sigma
+  erodeKernelSize: 3      # erosion kernel size for magnitude filtering
+
+vvEstimator:
+  minAngle: 30            # minimum angle of interest (degrees)
+  maxAngle: 150           # maximum angle of interest (degrees)
+  smoothingFactor: 0.7    # smoothing weight (0.0-1.0)

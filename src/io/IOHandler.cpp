@@ -14,31 +14,28 @@ namespace vv {
 IOHandler::IOHandler(const Config& config)
     : m_config(config) {
     
+    // Resolve relative input path against project root
+    if (!m_config.useCamera) {
+        std::filesystem::path inPath(m_config.inputFilePath);
+        if (!inPath.is_absolute()) {
+            inPath = std::filesystem::path(PROJECT_ROOT) / inPath;
+            m_config.inputFilePath = inPath.string();
+        }
+    }
     // 현재 날짜 및 전체 타임스탬프 가져오기
     std::string currentDate = utils::getCurrentDateString(); // "YYYYMMDD"
     std::string currentTimestamp = getCurrentTimeStamp(); // "YYYYMMDD_HHMMSS"
+    // 타임스탬프에서 시간 부분(HHMMSS)만 추출
+    std::string timePart = extractTimePart(currentTimestamp);
 
-    // 전체 타임스탬프에서 시간 부분(HHMMSS) 추출
-    std::string timePart = "000000"; // 기본값
-    size_t underscorePos = currentTimestamp.find('_');
-    if (underscorePos != std::string::npos && underscorePos + 1 < currentTimestamp.length()) {
-        timePart = currentTimestamp.substr(underscorePos + 1); // "HHMMSS" 추출
-    } else {
-        // 타임스탬프 형식이 예상과 다를 경우 경고
-        std::cerr << "Warning: Could not extract time part from timestamp: " << currentTimestamp << std::endl;
-    }
-
-    // 날짜 기반 결과 하위 디렉토리 경로 설정
-    std::filesystem::path baseResultDir = "../results";
+    // 날짜 기반 결과 디렉토리 경로 설정 (project root/results)
+    std::filesystem::path baseResultDir = std::filesystem::path(PROJECT_ROOT) / "results";
     std::filesystem::path dateResultDir = baseResultDir / currentDate; // 예: ../results/20230417
 
     // 날짜 기반 결과 하위 디렉토리 생성 (존재하지 않을 경우)
-    try {
-        std::filesystem::create_directories(dateResultDir);
-        std::cout << "Results will be saved to directory: " << std::filesystem::absolute(dateResultDir).string() << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Error creating date-specific results directory: " << e.what() << std::endl;
-    }
+    // 날짜 기반 결과 디렉토리 생성
+    ensureDirectoryExists(dateResultDir);
+    std::cout << "Results will be saved to directory: " << std::filesystem::absolute(dateResultDir).string() << std::endl;
 
     // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
     if (m_config.useCamera) {
@@ -115,12 +112,9 @@ bool IOHandler::setupVideoWriter(int width, int height) {
     }
     
     // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
-    try {
-        std::filesystem::path videoPath(m_videoFilePath);
-        std::filesystem::create_directories(videoPath.parent_path());
-    } catch (const std::exception& e) {
-        std::cerr << "Warning: Could not ensure directory exists for video writer: " << e.what() << std::endl;
-    }
+    // 비디오 저장 디렉토리 생성
+    std::filesystem::path videoPath(m_videoFilePath);
+    ensureDirectoryExists(videoPath.parent_path());
     
     m_videoWriter.open(m_videoFilePath, fourcc, fps, cv::Size(width, height));
     
@@ -151,12 +145,9 @@ bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
     }
     
     // CSV 파일 열기 전에 디렉토리 존재 여부 재확인
-    try {
-        std::filesystem::path csvPath(m_csvFilePath);
-        std::filesystem::create_directories(csvPath.parent_path());
-    } catch (const std::exception& e) {
-        std::cerr << "Warning: Could not ensure directory exists for csv file: " << e.what() << std::endl;
-    }
+    // CSV 저장 디렉토리 생성
+    std::filesystem::path csvPath(m_csvFilePath);
+    ensureDirectoryExists(csvPath.parent_path());
     
     std::ofstream outFile(m_csvFilePath);
     if (!outFile.is_open()) {
@@ -213,3 +204,25 @@ std::string IOHandler::getCurrentTimeStamp() const {
 }
 
 } // namespace vv 
+
+//------------------------------------------------------------------------------
+// Helper implementations
+//------------------------------------------------------------------------------
+namespace vv {
+
+std::string IOHandler::extractTimePart(const std::string& timestamp) {
+    size_t pos = timestamp.find('_');
+    if (pos != std::string::npos && pos + 1 < timestamp.size()) {
+        return timestamp.substr(pos + 1);
+    }
+    return "000000";
+}
+
+void IOHandler::ensureDirectoryExists(const std::filesystem::path& dir) {
+    try {
+        std::filesystem::create_directories(dir);
+    } catch (const std::exception& e) {
+        std::cerr << "Warning: Could not create directory: " << dir << " (" << e.what() << ")" << std::endl;
+    }
+}
+} // namespace vv

@@ -15,8 +15,12 @@ endif()
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+
 # 프로젝트 헤더 파일 포함
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# YAML-CPP for configuration parsing (system package)
+find_package(yaml-cpp REQUIRED)
 
 # 하위 디렉토리 추가
 add_subdirectory(src)

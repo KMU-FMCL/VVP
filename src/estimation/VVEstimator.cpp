@@ -6,8 +6,14 @@
 
 namespace vv {
 
-VVEstimator::VVEstimator() {
-    // 초기화
+VVEstimator::VVEstimator()
+    : m_params() {
+    // 기본 파라미터 사용
+}
+//------------------------------------------------------------------------------
+VVEstimator::VVEstimator(const VVParams& params)
+    : m_params(params) {
+    // 사용자 정의 파라미터 사용
 }
 
 VVResult VVEstimator::estimateVV(
@@ -25,11 +31,12 @@ VVResult VVEstimator::estimateVV(
         return hogHistogram[i1] > hogHistogram[i2]; 
     };
     
-    // 범위 내의 상위 3개 인덱스 찾기
+    // 범위 내의 상위 3개 인덱스 찾기 (minAngle ~ maxAngle)
     std::vector<int> bestIndices;
-    for (size_t i = 0; i < indices.size(); i++) {
-        if (indices[i] >= MIN_ANGLE && indices[i] <= MAX_ANGLE) {
-            bestIndices.push_back(indices[i]);
+    for (size_t i = 0; i < indices.size(); ++i) {
+        int angle = indices[i];
+        if (angle >= m_params.minAngle && angle <= m_params.maxAngle) {
+            bestIndices.push_back(angle);
         }
     }
     
@@ -71,7 +78,8 @@ VVResult VVEstimator::estimateVV(
     }
     
     // 시간적 스무딩 적용
-    result.angle = SMOOTHING_FACTOR * result.angle + (1.0 - SMOOTHING_FACTOR) * previousResult.angle;
+    result.angle = m_params.smoothingFactor * result.angle
+                 + (1.0 - m_params.smoothingFactor) * previousResult.angle;
     
     // 가속도 계산
     result.updateAcceleration();
@@ -141,27 +149,12 @@ cv::Mat VVEstimator::createHistogramVisualization(
         cv::LINE_AA
     );
     
-    // 30도, 150도 경계선 표시
-    int x30 = width - MIN_ANGLE * barWidth - barWidth / 2;
-    int x150 = width - MAX_ANGLE * barWidth - barWidth / 2;
+    // 경계선 표시 (minAngle, maxAngle)
+    int xMin = width - m_params.minAngle * barWidth - barWidth / 2;
+    int xMax = width - m_params.maxAngle * barWidth - barWidth / 2;
     
-    cv::line(
-        histImage,
-        cv::Point(x30, 0),
-        cv::Point(x30, height),
-        cv::Scalar(0, 0, 0),
-        1,
-        cv::LINE_AA
-    );
-    
-    cv::line(
-        histImage,
-        cv::Point(x150, 0),
-        cv::Point(x150, height),
-        cv::Scalar(0, 0, 0),
-        1,
-        cv::LINE_AA
-    );
+    cv::line(histImage, cv::Point(xMin, 0), cv::Point(xMin, height), cv::Scalar(0,0,0), 1, cv::LINE_AA);
+    cv::line(histImage, cv::Point(xMax, 0), cv::Point(xMax, height), cv::Scalar(0,0,0), 1, cv::LINE_AA);
     
     // X축 눈금 추가
     int tickStep = 30;

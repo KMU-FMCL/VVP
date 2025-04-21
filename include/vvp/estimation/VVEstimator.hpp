@@ -14,9 +14,15 @@ namespace vv {
 class VVEstimator {
 public:
     /**
-     * @brief 생성자
+     * @brief 기본 생성자 (내부 기본 파라미터 사용)
      */
     VVEstimator();
+    
+    /**
+     * @brief 파라미터 지정 생성자
+     * @param params Visual Vertical 추정 파라미터
+     */
+    explicit VVEstimator(const VVParams& params);
 
     /**
      * @brief HOG 히스토그램에서 VV 각도 추정
@@ -48,12 +54,8 @@ public:
     ) const;
 
 private:
-    std::vector<VVResult> m_results; // 모든 프레임의 VV 결과 저장
-    
-    // 히스토그램 분석을 위한 상수
-    const int MIN_ANGLE = 30;
-    const int MAX_ANGLE = 150;
-    const double SMOOTHING_FACTOR = 0.7; // 이전 각도의 가중치 (0.7 * 현재 + 0.3 * 이전)
+    std::vector<VVResult> m_results;  ///< 모든 프레임의 VV 결과 저장
+    VVParams m_params;                ///< estimator 파라미터 저장
 };
 
 } // namespace vv 

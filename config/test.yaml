@@ -1,0 +1,4 @@
+io:
+  useCamera: false
+hog:
+  binCount: 180

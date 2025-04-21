@@ -27,6 +27,13 @@ struct HOGParams {
     int erodeKernelSize = 3;
 };
 
+// VVEstimator 파라미터 구조체
+struct VVParams {
+    int minAngle = 30;            // 관심 각도 최소 (도)
+    int maxAngle = 150;           // 관심 각도 최대 (도)
+    double smoothingFactor = 0.7; // 스무딩 가중치 (0.0-1.0)
+};
+
 // VV 추정 결과 구조체
 struct VVResult {
     double angle = 90.0;          // 수직 방향 각도 (도)

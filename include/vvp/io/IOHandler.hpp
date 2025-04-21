@@ -4,6 +4,7 @@
 #include <vector>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include <filesystem>
 #include "vvp/estimation/Types.hpp"
 
 namespace vv {
@@ -94,6 +95,19 @@ private:
      * @return 타임스탬프 문자열
      */
     std::string getCurrentTimeStamp() const;
+    
+    /**
+     * @brief 타임스탬프에서 시간 부분(HHMMSS)만 추출
+     * @param timestamp 전체 타임스탬프 문자열 (YYYYMMDD_HHMMSS)
+     * @return 시간 부분 문자열 (HHMMSS), 추출 실패 시 "000000"
+     */
+    static std::string extractTimePart(const std::string& timestamp);
+    
+    /**
+     * @brief 디렉토리가 존재하지 않으면 생성
+     * @param dir 생성할 디렉토리 경로
+     */
+    static void ensureDirectoryExists(const std::filesystem::path& dir);
 };
 
 } // namespace vv 

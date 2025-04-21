@@ -6,15 +6,28 @@
 #include "vvp/processing/ImageProcessor.hpp"
 #include "vvp/estimation/VVEstimator.hpp"
 #include "vvp/io/IOHandler.hpp"
-#include "vvp/utils/Helpers.hpp"
+#include "vvp/utils/Helpers.hpp"      // printOpenCVInfo
+#include "vvp/utils/ConfigLoader.hpp" // YAML config loader
 #include "vvp/fps/FPSCounter.hpp"
 
 int main(int argc, char* argv[]) {
     // OpenCV 정보 출력
     vv::utils::printOpenCVInfo();
     
-    // 명령줄 인자 파싱
-    vv::Config config = vv::utils::parseCommandLineArgs(argc, argv);
+    // 설정 파일 경로(기본값: 프로젝트 루트의 config/config.yaml)
+    std::string configPath = std::string(PROJECT_ROOT) + "/config/config.yaml";
+    if (argc >= 2) {
+        configPath = argv[1];
+    }
+    std::cout << "Loading config from: " << configPath << std::endl;
+    vv::utils::ConfigAll cfgAll;
+    try {
+        cfgAll = vv::utils::ConfigLoader::load(configPath);
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
+    const vv::Config& config = cfgAll.io;
     
     // 입출력 핸들러 초기화
     vv::IOHandler ioHandler(config);
@@ -23,9 +36,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     
-    // 이미지 처리기 및 VV 추정기 초기화
-    vv::ImageProcessor imageProcessor;
-    vv::VVEstimator vvEstimator;
+    // 이미지 처리기 및 VV 추정기 초기화 (YAML 파라미터 사용)
+    vv::ImageProcessor imageProcessor(cfgAll.hog);
+    vv::VVEstimator vvEstimator(cfgAll.vv);
     
     // FPS 카운터 초기화
     vv::FPSCounter fpsCounter;

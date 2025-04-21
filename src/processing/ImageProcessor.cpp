@@ -72,12 +72,16 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
     // 히스토그램 계산
     std::vector<float> hist(m_params.binCount, 0.0f);
     
-    // OpenCV의 calcHist 대신 수동으로 히스토그램 계산 (Python 코드와 일치)
-    for (int i = 0; i < angMod.rows; i++) {
-        for (int j = 0; j < angMod.cols; j++) {
-            int bin = static_cast<int>(angMod.at<float>(i, j));
-            if (bin >= 0 && bin < m_params.binCount) {
-                hist[bin] += magFilter.at<float>(i, j);
+    // 수동 히스토그램 계산: 각 픽셀의 각도 인덱스에 필터된 매그니튜드 누적
+    const int rows = angMod.rows;
+    const int cols = angMod.cols;
+    for (int i = 0; i < rows; ++i) {
+        const float* angPtr = angMod.ptr<float>(i);
+        const float* magPtr = magFilter.ptr<float>(i);
+        for (int j = 0; j < cols; ++j) {
+            int bin = static_cast<int>(angPtr[j]);
+            if (static_cast<unsigned>(bin) < static_cast<unsigned>(m_params.binCount)) {
+                hist[bin] += magPtr[j];
             }
         }
     }
