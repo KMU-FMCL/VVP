@@ -1,4 +1,4 @@
-#include "visual_vertical/ImageProcessor.hpp"
+#include "vvp/processing/ImageProcessor.hpp"
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <iostream>

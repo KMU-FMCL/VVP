@@ -5,7 +5,7 @@
 #include <ctime>
 #include <numeric>
 #include <algorithm>
-#include "visual_vertical/Types.hpp"
+#include "vvp/estimation/Types.hpp"
 
 namespace vv {
 namespace utils {

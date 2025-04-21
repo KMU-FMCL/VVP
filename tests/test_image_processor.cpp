@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include "visual_vertical/ImageProcessor.hpp"
+#include "vvp/processing/ImageProcessor.hpp"
 
 // ImageProcessor 클래스 테스트
 class ImageProcessorTest : public ::testing::Test {

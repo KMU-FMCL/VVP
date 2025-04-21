@@ -18,10 +18,10 @@ endif()
 
 # 구현 파일 목록
 set(IMPLEMENTATION_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/visual_vertical/VVEstimator.cpp
-    ${CMAKE_SOURCE_DIR}/src/visual_vertical/ImageProcessor.cpp
-    ${CMAKE_SOURCE_DIR}/src/visual_vertical/IOHandler.cpp
-    ${CMAKE_SOURCE_DIR}/src/visual_vertical/Types.cpp
+    ${CMAKE_SOURCE_DIR}/src/estimation/VVEstimator.cpp
+    ${CMAKE_SOURCE_DIR}/src/processing/ImageProcessor.cpp
+    ${CMAKE_SOURCE_DIR}/src/io/IOHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/estimation/Types.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/Helpers.cpp
 )
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
-#include "visual_vertical/Types.hpp"
+#include "vvp/estimation/Types.hpp"
 
 namespace vv {
 

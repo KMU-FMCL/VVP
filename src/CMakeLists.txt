@@ -1,10 +1,10 @@
 # 소스 파일 추가
 set(SOURCES
     main.cpp
-    visual_vertical/VVEstimator.cpp
-    visual_vertical/ImageProcessor.cpp
-    visual_vertical/IOHandler.cpp
-    visual_vertical/Types.cpp
+    io/IOHandler.cpp
+    processing/ImageProcessor.cpp
+    estimation/VVEstimator.cpp
+    estimation/Types.cpp
     utils/Helpers.cpp
     fps/FPSCounter.cpp
 )

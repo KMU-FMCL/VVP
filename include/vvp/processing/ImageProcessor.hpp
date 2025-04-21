@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include "visual_vertical/Types.hpp"
+#include "vvp/estimation/Types.hpp"
 
 namespace vv {
 

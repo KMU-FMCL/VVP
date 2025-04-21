@@ -17,6 +17,7 @@
 # Result
 /results/
 *.csv
+*.json
 
 # System
 .DS_Store

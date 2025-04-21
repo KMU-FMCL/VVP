@@ -1,4 +1,4 @@
-#include "visual_vertical/Types.hpp"
+#include "vvp/estimation/Types.hpp"
 #include <cmath>
 
 namespace vv {

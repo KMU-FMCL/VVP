@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "visual_vertical/VVEstimator.hpp"
+#include "vvp/estimation/VVEstimator.hpp"
 
 // VVEstimator 클래스 테스트
 class VVEstimatorTest : public ::testing::Test {

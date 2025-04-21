@@ -1,4 +1,4 @@
-#include "visual_vertical/IOHandler.hpp"
+#include "vvp/io/IOHandler.hpp"
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -7,7 +7,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 #include <filesystem> // C++17 파일 시스템 기능 추가
-#include "visual_vertical/utils/Helpers.hpp" // 추가 (getCurrentDateString 사용 위해)
+#include "vvp/utils/Helpers.hpp" // 추가 (getCurrentDateString 사용 위해)
 
 namespace vv {
 

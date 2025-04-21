@@ -3,11 +3,11 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "visual_vertical/ImageProcessor.hpp"
-#include "visual_vertical/VVEstimator.hpp"
-#include "visual_vertical/IOHandler.hpp"
-#include "visual_vertical/utils/Helpers.hpp"
-#include "visual_vertical/fps/FPSCounter.hpp"
+#include "vvp/processing/ImageProcessor.hpp"
+#include "vvp/estimation/VVEstimator.hpp"
+#include "vvp/io/IOHandler.hpp"
+#include "vvp/utils/Helpers.hpp"
+#include "vvp/fps/FPSCounter.hpp"
 
 int main(int argc, char* argv[]) {
     // OpenCV 정보 출력
