@@ -16,11 +16,11 @@ namespace vv {
 
 IOHandler::IOHandler(const Config& config) : config_(config) {
   // Resolve relative input path against project root
-  if (!config_.useCamera) {
-    std::filesystem::path in_path(config_.inputFilePath);
+  if (!config_.use_camera) {
+    std::filesystem::path in_path(config_.input_file_path);
     if (!in_path.is_absolute()) {
       in_path = std::filesystem::path(PROJECT_ROOT) / in_path;
-      config_.inputFilePath = in_path.string();
+      config_.input_file_path = in_path.string();
     }
   }
   // 현재 날짜 및 전체 타임스탬프 가져오기
@@ -43,7 +43,7 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
             << std::filesystem::absolute(date_result_dir).string() << std::endl;
 
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
-  if (config_.useCamera) {
+  if (config_.use_camera) {
     // 카메라 입력의 경우, 파일 이름에 'camera'와 시간만 포함
     std::string csv_file_name = "camera_" + time_part + ".csv";
     std::string video_file_name = "camera_" + time_part + ".mp4";
@@ -51,7 +51,7 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
     video_file_path_ = (date_result_dir / video_file_name).string();
   } else {
     // 파일 경로 처리에 std::filesystem 사용
-    std::filesystem::path input_path(config_.inputFilePath);
+    std::filesystem::path input_path(config_.input_file_path);
 
     // stem()은 확장자를 제외한 파일 이름만 가져옵니다
     std::string filename_without_ext = input_path.stem().string();
@@ -80,17 +80,17 @@ IOHandler::~IOHandler() {
 }
 
 bool IOHandler::open_video_source() {
-  if (config_.useCamera) {
-    video_capture_.open(config_.cameraPort, cv::CAP_DSHOW);
+  if (config_.use_camera) {
+    video_capture_.open(config_.camera_port, cv::CAP_DSHOW);
   } else {
-    video_capture_.open(config_.inputFilePath);
+    video_capture_.open(config_.input_file_path);
   }
 
   if (!video_capture_.isOpened()) {
     std::cerr << "Error: Could not open video source: "
-              << (config_.useCamera
-                      ? "Camera #" + std::to_string(config_.cameraPort)
-                      : config_.inputFilePath)
+              << (config_.use_camera
+                      ? "Camera #" + std::to_string(config_.camera_port)
+                      : config_.input_file_path)
               << std::endl;
     return false;
   }
@@ -171,7 +171,7 @@ bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
 
   // 데이터 작성
   for (const auto& result : results) {
-    out_file << result.accX << "," << result.accY << "," << result.angleRad
+    out_file << result.acc_x << "," << result.acc_y << "," << result.angle_rad
              << "," << result.angle << std::endl;
   }
 
@@ -191,7 +191,7 @@ std::string IOHandler::generate_output_file_path(
   std::string current_date = utils::get_current_date_string();
   std::filesystem::path base_result_dir = "../results";
   std::filesystem::path date_result_dir =
-      base_result_dir / current_date;  // baseResultDir 객체에 / 연산자 사용
+      base_result_dir / current_date;  // base_result_dir 객체에 / 연산자 사용
   std::string timestamp = get_current_time_stamp();
 
   // 타임스탬프에서 시간 부분 추출

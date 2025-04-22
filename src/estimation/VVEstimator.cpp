@@ -29,11 +29,11 @@ VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
     return hog_histogram[i1] > hog_histogram[i2];
   };
 
-  // 범위 내의 상위 3개 인덱스 찾기 (minAngle ~ maxAngle)
+  // 범위 내의 상위 3개 인덱스 찾기 (min_angle ~ max_angle)
   std::vector<int> best_indices;
   for (size_t i = 0; i < indices.size(); ++i) {
     int angle = indices[i];
-    if (angle >= params_.minAngle && angle <= params_.maxAngle) {
+    if (angle >= params_.min_angle && angle <= params_.max_angle) {
       best_indices.push_back(angle);
     }
   }
@@ -74,8 +74,8 @@ VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
   }
 
   // 시간적 스무딩 적용
-  result.angle = params_.smoothingFactor * result.angle +
-                 (1.0 - params_.smoothingFactor) * previous_result.angle;
+  result.angle = params_.smoothing_factor * result.angle +
+                 (1.0 - params_.smoothing_factor) * previous_result.angle;
 
   // 가속도 계산
   result.update_acceleration();
@@ -136,9 +136,9 @@ cv::Mat VVEstimator::create_histogram_visualization(
   cv::line(hist_image, cv::Point(vv_x, 0), cv::Point(vv_x, height),
            cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 
-  // 경계선 표시 (minAngle, maxAngle)
-  int x_min = width - params_.minAngle * bar_width - bar_width / 2;
-  int x_max = width - params_.maxAngle * bar_width - bar_width / 2;
+  // 경계선 표시 (min_angle, max_angle)
+  int x_min = width - params_.min_angle * bar_width - bar_width / 2;
+  int x_max = width - params_.max_angle * bar_width - bar_width / 2;
 
   cv::line(hist_image, cv::Point(x_min, 0), cv::Point(x_min, height),
            cv::Scalar(0, 0, 0), 1, cv::LINE_AA);

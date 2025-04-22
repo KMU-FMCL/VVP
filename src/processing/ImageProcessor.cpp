@@ -13,7 +13,7 @@ ImageProcessor::ImageProcessor(const HOGParams& params) : params_(params) {
   // 침식 연산을 위한 커널 초기화
   erode_kernel_ = cv::getStructuringElement(
       cv::MORPH_RECT,
-      cv::Size(params_.erodeKernelSize, params_.erodeKernelSize));
+      cv::Size(params_.erode_kernel_size, params_.erode_kernel_size));
 }
 
 HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
@@ -25,8 +25,8 @@ HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
 
   // 가우시안 블러 적용
   cv::GaussianBlur(gray, gray,
-                   cv::Size(params_.blurKernelSize, params_.blurKernelSize),
-                   params_.blurSigma);
+                   cv::Size(params_.blur_kernel_size, params_.blur_kernel_size),
+                   params_.blur_sigma);
 
   // 0-1 범위로 정규화
   gray.convertTo(gray, CV_32F);
@@ -49,7 +49,7 @@ HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
   cv::normalize(mag, mag, 0, 1, cv::NORM_MINMAX);
 
   cv::Mat mag_filter;
-  cv::threshold(mag, mag_filter, params_.thresholdValue, 1, cv::THRESH_BINARY);
+  cv::threshold(mag, mag_filter, params_.threshold_value, 1, cv::THRESH_BINARY);
 
   // 침식 연산 적용
   cv::erode(mag_filter, mag_filter, erode_kernel_);
@@ -67,7 +67,7 @@ HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
   temp.copyTo(ang_mod, mask);
 
   // 히스토그램 계산
-  std::vector<float> hist(params_.binCount, 0.0f);
+  std::vector<float> hist(params_.bin_count, 0.0f);
 
   // 수동 히스토그램 계산: 각 픽셀의 각도 인덱스에 필터된 매그니튜드 누적
   const int rows = ang_mod.rows;
@@ -78,18 +78,18 @@ HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
     for (int j = 0; j < cols; ++j) {
       int bin = static_cast<int>(ang_ptr[j]);
       if (static_cast<unsigned>(bin) <
-          static_cast<unsigned>(params_.binCount)) {
+          static_cast<unsigned>(params_.bin_count)) {
         hist[bin] += mag_ptr[j];
       }
     }
   }
 
   // 결과 설정
-  result.gradientX = gx;
-  result.gradientY = gy;
+  result.gradient_x = gx;
+  result.gradient_y = gy;
   result.histogram = hist;
   result.magnitude = mag;
-  result.magnitudeFiltered = mag_filter;
+  result.magnitude_filtered = mag_filter;
 
   return result;
 }
@@ -138,7 +138,7 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
   // HOG 결과 이미지 생성
   cv::Mat hog_mag, hog_mag_filter;
   hog_result.magnitude.convertTo(hog_mag, CV_8U, 255);
-  hog_result.magnitudeFiltered.convertTo(hog_mag_filter, CV_8U, 255);
+  hog_result.magnitude_filtered.convertTo(hog_mag_filter, CV_8U, 255);
 
   // 단일 채널을 3채널로 변환 (그레이스케일 -> 컬러)
   cv::Mat hog_mag_color, hog_mag_filter_color;
@@ -213,12 +213,12 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
 
     cv::line(image, center, end, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 
-    // 가속도 벡터 그리기 (accX, accY)
+    // 가속도 벡터 그리기 (acc_x, acc_y)
     double acc_scale_factor =
         length / 9.8;  // 9.8 m/s^2를 length 픽셀로 스케일링
     cv::Point acc_vec(
-        static_cast<int>(center.x + vv_result.accX * acc_scale_factor),
-        static_cast<int>(center.y - vv_result.accY * acc_scale_factor));
+        static_cast<int>(center.x + vv_result.acc_x * acc_scale_factor),
+        static_cast<int>(center.y - vv_result.acc_y * acc_scale_factor));
     cv::arrowedLine(image, center, acc_vec, cv::Scalar(0, 0, 255), 2,
                     cv::LINE_AA);
 

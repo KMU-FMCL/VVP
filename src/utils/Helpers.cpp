@@ -23,19 +23,19 @@ Config parse_command_line_args(int argc, char* argv[]) {
       exit(0);
     } else if (arg == "-i" || arg == "--inputfile") {
       if (i + 1 < argc) {
-        config.inputFilePath = argv[++i];
-        config.useCamera = false;
+        config.input_file_path = argv[++i];
+        config.use_camera = false;
       }
     } else if (arg == "-c" || arg == "--camera") {
       if (i + 1 < argc) {
         std::string value = argv[++i];
         if (value == "true" || value == "True" || value == "1") {
-          config.useCamera = true;
+          config.use_camera = true;
         }
       }
     } else if (arg == "-cp" || arg == "--camera_port") {
       if (i + 1 < argc) {
-        config.cameraPort = std::stoi(argv[++i]);
+        config.camera_port = std::stoi(argv[++i]);
       }
     } else if (arg == "-s" || arg == "--scale") {
       if (i + 1 < argc) {
