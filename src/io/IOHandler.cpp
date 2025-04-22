@@ -17,51 +17,52 @@ namespace vv {
 IOHandler::IOHandler(const Config& config) : config_(config) {
   // Resolve relative input path against project root
   if (!config_.useCamera) {
-    std::filesystem::path inPath(config_.inputFilePath);
-    if (!inPath.is_absolute()) {
-      inPath = std::filesystem::path(PROJECT_ROOT) / inPath;
-      config_.inputFilePath = inPath.string();
+    std::filesystem::path in_path(config_.inputFilePath);
+    if (!in_path.is_absolute()) {
+      in_path = std::filesystem::path(PROJECT_ROOT) / in_path;
+      config_.inputFilePath = in_path.string();
     }
   }
   // 현재 날짜 및 전체 타임스탬프 가져오기
-  std::string currentDate = utils::get_current_date_string();  // "YYYYMMDD"
-  std::string currentTimestamp = get_current_time_stamp();  // "YYYYMMDD_HHMMSS"
+  std::string current_date = utils::get_current_date_string();  // "YYYYMMDD"
+  std::string current_timestamp =
+      get_current_time_stamp();  // "YYYYMMDD_HHMMSS"
   // 타임스탬프에서 시간 부분(HHMMSS)만 추출
-  std::string timePart = extract_time_part(currentTimestamp);
+  std::string time_part = extract_time_part(current_timestamp);
 
   // 날짜 기반 결과 디렉토리 경로 설정 (project root/results)
-  std::filesystem::path baseResultDir =
+  std::filesystem::path base_result_dir =
       std::filesystem::path(PROJECT_ROOT) / "results";
-  std::filesystem::path dateResultDir =
-      baseResultDir / currentDate;  // 예: ../results/20230417
+  std::filesystem::path date_result_dir =
+      base_result_dir / current_date;  // 예: ../results/20230417
 
   // 날짜 기반 결과 하위 디렉토리 생성 (존재하지 않을 경우)
   // 날짜 기반 결과 디렉토리 생성
-  ensure_directory_exists(dateResultDir);
+  ensure_directory_exists(date_result_dir);
   std::cout << "Results will be saved to directory: "
-            << std::filesystem::absolute(dateResultDir).string() << std::endl;
+            << std::filesystem::absolute(date_result_dir).string() << std::endl;
 
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
   if (config_.useCamera) {
     // 카메라 입력의 경우, 파일 이름에 'camera'와 시간만 포함
-    std::string csvFileName = "camera_" + timePart + ".csv";
-    std::string videoFileName = "camera_" + timePart + ".mp4";
-    csv_file_path_ = (dateResultDir / csvFileName).string();
-    video_file_path_ = (dateResultDir / videoFileName).string();
+    std::string csv_file_name = "camera_" + time_part + ".csv";
+    std::string video_file_name = "camera_" + time_part + ".mp4";
+    csv_file_path_ = (date_result_dir / csv_file_name).string();
+    video_file_path_ = (date_result_dir / video_file_name).string();
   } else {
     // 파일 경로 처리에 std::filesystem 사용
-    std::filesystem::path inputPath(config_.inputFilePath);
+    std::filesystem::path input_path(config_.inputFilePath);
 
     // stem()은 확장자를 제외한 파일 이름만 가져옵니다
-    std::string filenameWithoutExt = inputPath.stem().string();
+    std::string filename_without_ext = input_path.stem().string();
 
     // 최종 파일 이름 구성: VV_ + 원본이름 + _ + 시간 + 확장자
-    std::string csvFileName =
-        "VV_" + filenameWithoutExt + "_" + timePart + ".csv";
-    std::string videoFileName =
-        "VV_Video_" + filenameWithoutExt + "_" + timePart + ".mp4";
-    csv_file_path_ = (dateResultDir / csvFileName).string();
-    video_file_path_ = (dateResultDir / videoFileName).string();
+    std::string csv_file_name =
+        "VV_" + filename_without_ext + "_" + time_part + ".csv";
+    std::string video_file_name =
+        "VV_Video_" + filename_without_ext + "_" + time_part + ".mp4";
+    csv_file_path_ = (date_result_dir / csv_file_name).string();
+    video_file_path_ = (date_result_dir / video_file_name).string();
   }
 }
 
@@ -120,8 +121,8 @@ bool IOHandler::setup_video_writer(int width, int height) {
 
   // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
   // 비디오 저장 디렉토리 생성
-  std::filesystem::path videoPath(video_file_path_);
-  ensure_directory_exists(videoPath.parent_path());
+  std::filesystem::path video_path(video_file_path_);
+  ensure_directory_exists(video_path.parent_path());
 
   video_writer_.open(video_file_path_, fourcc, fps, cv::Size(width, height));
 
@@ -141,9 +142,9 @@ void IOHandler::write_frame(const cv::Mat& frame) {
   }
 }
 
-int IOHandler::display_frame(const cv::Mat& frame, int waitKey) {
+int IOHandler::display_frame(const cv::Mat& frame, int wait_key) {
   cv::imshow("Visual Vertical Estimation", frame);
-  return cv::waitKey(waitKey);
+  return cv::waitKey(wait_key);
 }
 
 bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
@@ -154,27 +155,27 @@ bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
 
   // CSV 파일 열기 전에 디렉토리 존재 여부 재확인
   // CSV 저장 디렉토리 생성
-  std::filesystem::path csvPath(csv_file_path_);
-  ensure_directory_exists(csvPath.parent_path());
+  std::filesystem::path csv_path(csv_file_path_);
+  ensure_directory_exists(csv_path.parent_path());
 
-  std::ofstream outFile(csv_file_path_);
-  if (!outFile.is_open()) {
+  std::ofstream out_file(csv_file_path_);
+  if (!out_file.is_open()) {
     std::cerr << "Error: Could not open file for writing: " << csv_file_path_
               << std::endl;
     return false;
   }
 
   // CSV 헤더 작성
-  outFile << "VV_acc_x[m/s^2],VV_acc_y[m/s^2],VV_acc_rad,VV_acc_dig"
-          << std::endl;
+  out_file << "VV_acc_x[m/s^2],VV_acc_y[m/s^2],VV_acc_rad,VV_acc_dig"
+           << std::endl;
 
   // 데이터 작성
   for (const auto& result : results) {
-    outFile << result.accX << "," << result.accY << "," << result.angleRad
-            << "," << result.angle << std::endl;
+    out_file << result.accX << "," << result.accY << "," << result.angleRad
+             << "," << result.angle << std::endl;
   }
 
-  outFile.close();
+  out_file.close();
   std::cout << "Results saved to: " << csv_file_path_ << std::endl;
 
   return true;
@@ -187,21 +188,21 @@ cv::VideoCapture& IOHandler::get_video_capture() {
 std::string IOHandler::generate_output_file_path(
     const std::string& prefix, const std::string& extension) const {
   // 현재 날짜 기준 디렉토리와 시간을 포함한 파일 이름 생성
-  std::string currentDate = utils::get_current_date_string();
-  std::filesystem::path baseResultDir = "../results";
-  std::filesystem::path dateResultDir =
-      baseResultDir / currentDate;  // baseResultDir 객체에 / 연산자 사용
+  std::string current_date = utils::get_current_date_string();
+  std::filesystem::path base_result_dir = "../results";
+  std::filesystem::path date_result_dir =
+      base_result_dir / current_date;  // baseResultDir 객체에 / 연산자 사용
   std::string timestamp = get_current_time_stamp();
 
   // 타임스탬프에서 시간 부분 추출
-  std::string timePart = "000000";  // 기본값
-  size_t underscorePos = timestamp.find('_');
-  if (underscorePos != std::string::npos &&
-      underscorePos + 1 < timestamp.length()) {
-    timePart = timestamp.substr(underscorePos + 1);  // "HHMMSS" 추출
+  std::string time_part = "000000";  // 기본값
+  size_t underscore_pos = timestamp.find('_');
+  if (underscore_pos != std::string::npos &&
+      underscore_pos + 1 < timestamp.length()) {
+    time_part = timestamp.substr(underscore_pos + 1);  // "HHMMSS" 추출
   }
 
-  return (dateResultDir / (prefix + "_" + timePart + extension)).string();
+  return (date_result_dir / (prefix + "_" + time_part + extension)).string();
 }
 
 std::string IOHandler::get_current_time_stamp() const {
