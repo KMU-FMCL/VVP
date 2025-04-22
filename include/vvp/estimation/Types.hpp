@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+
 #include <opencv2/core.hpp>
 
 namespace vv {
@@ -11,51 +12,51 @@ const std::string ISO_TIME_FORMAT = "%Y%m%d_%H%M%S";
 
 // 프로그램 설정 구조체
 struct Config {
-    bool useCamera = false;
-    int cameraPort = 0;
-    std::string inputFilePath = "./test.mp4";
-    int scale = 2;
-    bool saveResults = true;
+  bool useCamera = false;
+  int cameraPort = 0;
+  std::string inputFilePath = "./test.mp4";
+  int scale = 2;
+  bool saveResults = true;
 };
 
 // HOG 파라미터 구조체
 struct HOGParams {
-    int binCount = 180;
-    double thresholdValue = 0.25;
-    int blurKernelSize = 11;
-    double blurSigma = 3.0;
-    int erodeKernelSize = 3;
+  int binCount = 180;
+  double thresholdValue = 0.25;
+  int blurKernelSize = 11;
+  double blurSigma = 3.0;
+  int erodeKernelSize = 3;
 };
 
 // VVEstimator 파라미터 구조체
 struct VVParams {
-    int minAngle = 30;            // 관심 각도 최소 (도)
-    int maxAngle = 150;           // 관심 각도 최대 (도)
-    double smoothingFactor = 0.7; // 스무딩 가중치 (0.0-1.0)
+  int minAngle = 30;             // 관심 각도 최소 (도)
+  int maxAngle = 150;            // 관심 각도 최대 (도)
+  double smoothingFactor = 0.7;  // 스무딩 가중치 (0.0-1.0)
 };
 
 // VV 추정 결과 구조체
 struct VVResult {
-    double angle = 90.0;          // 수직 방향 각도 (도)
-    double angleRad = M_PI / 2.0; // 수직 방향 각도 (라디안)
-    double accX = 0.0;            // X방향 가속도 (m/s^2)
-    double accY = 9.8;            // Y방향 가속도 (m/s^2)
-    
-    // 각도에서 가속도 계산 메서드
-    void updateAcceleration() {
-        angleRad = angle * M_PI / 180.0;
-        accX = 9.8 * std::cos(angleRad);
-        accY = 9.8 * std::sin(angleRad);
-    }
+  double angle = 90.0;           // 수직 방향 각도 (도)
+  double angleRad = M_PI / 2.0;  // 수직 방향 각도 (라디안)
+  double accX = 0.0;             // X방향 가속도 (m/s^2)
+  double accY = 9.8;             // Y방향 가속도 (m/s^2)
+
+  // 각도에서 가속도 계산 메서드
+  void updateAcceleration() {
+    angleRad = angle * M_PI / 180.0;
+    accX = 9.8 * std::cos(angleRad);
+    accY = 9.8 * std::sin(angleRad);
+  }
 };
 
 // HOG 계산 결과 구조체
 struct HOGResult {
-    cv::Mat gradientX;
-    cv::Mat gradientY;
-    std::vector<float> histogram;
-    cv::Mat magnitude;
-    cv::Mat magnitudeFiltered;
+  cv::Mat gradientX;
+  cv::Mat gradientY;
+  std::vector<float> histogram;
+  cv::Mat magnitude;
+  cv::Mat magnitudeFiltered;
 };
 
-} // namespace vv 
+}  // namespace vv
