@@ -65,6 +65,19 @@ class ImageProcessor {
   HOGParams params_;
   cv::Mat erode_kernel_;
 
+  // 시각화 상수
+  static constexpr int kLineThickness = 2;
+  static constexpr int kFpsTextPositionX = 1100;
+  static constexpr int kFpsTextPositionY = 30;
+  static constexpr double kFpsTextScale = 1.0;
+  static constexpr int kVvTextPositionX = 10;
+  static constexpr int kVvTextPositionY = 30;
+  static constexpr double kVvTextScale = 2.0;
+  static constexpr double kHistogramHeightScale = 0.8;
+  static constexpr float kHistogramMinValue = 0.001f;
+  static constexpr double kGravityAcceleration = 9.8;  // m/s^2
+  static constexpr int kTickStep = 30;  // 히스토그램 X축 눈금 간격
+
   /**
    * @brief 이미지에 VV 각도 선 그리기
    * @param image 대상 이미지

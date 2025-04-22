@@ -57,6 +57,16 @@ class VVEstimator {
  private:
   std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
   VVParams params_;                ///< estimator 파라미터 저장
+
+  // 상수 정의
+  static constexpr int kTopPeakCount = 3;  ///< 상위 피크 개수
+  static constexpr double kHistogramHeightScale =
+      0.8;  ///< 히스토그램 높이 스케일
+  static constexpr float kHistogramMinValue = 0.001f;  ///< 히스토그램 최소값
+  static constexpr int kTickStep = 30;            ///< 히스토그램 X축 눈금 간격
+  static constexpr int kThickLineWidth = 2;       ///< 굵은 선 두께
+  static constexpr int kThinLineWidth = 1;        ///< 얇은 선 두께
+  static constexpr double kLabelFontScale = 0.4;  ///< 레이블 폰트 크기
 };
 
 }  // namespace vv
