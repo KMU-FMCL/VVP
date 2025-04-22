@@ -129,7 +129,7 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
   cv::Mat calibrated_with_line = calibrated_image.clone();
   cv::line(calibrated_with_line, cv::Point(0, calibrated_with_line.rows / 2),
            cv::Point(calibrated_with_line.cols, calibrated_with_line.rows / 2),
-           cv::Scalar(0, 0, 0), 2, cv::LINE_AA);
+           cv::Scalar(0, 0, 0), kLineThickness, cv::LINE_AA);
 
   // 상단 이미지 가로로 합치기 (원본 + 보정)
   cv::Mat top_row;
@@ -176,8 +176,10 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
   if (fps > 0.0f) {
     std::stringstream ss;
     ss << "FPS: " << std::fixed << std::setprecision(1) << fps;
-    cv::putText(result, ss.str(), cv::Point(1100, 30), cv::FONT_HERSHEY_SIMPLEX,
-                1.0, cv::Scalar(0, 255, 0), 2);
+    cv::putText(result, ss.str(),
+                cv::Point(kFpsTextPositionX, kFpsTextPositionY),
+                cv::FONT_HERSHEY_SIMPLEX, kFpsTextScale, cv::Scalar(0, 255, 0),
+                kLineThickness);
   }
 
   return result;
@@ -187,19 +189,19 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
                                            const VVResult& vv_result) const {
   try {
     // VV 각도 텍스트 추가
-    cv::putText(image,
-                " VV_dig=" + std::to_string(static_cast<int>(vv_result.angle)),
-                cv::Point(10, 30), cv::FONT_HERSHEY_PLAIN, 2,
-                cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+    cv::putText(
+        image, " VV_dig=" + std::to_string(static_cast<int>(vv_result.angle)),
+        cv::Point(kVvTextPositionX, kVvTextPositionY), cv::FONT_HERSHEY_PLAIN,
+        kVvTextScale, cv::Scalar(0, 255, 0), kLineThickness, cv::LINE_AA);
 
     // 수평선과 수직선 추가
     cv::line(image, cv::Point(0, image.rows / 2),
-             cv::Point(image.cols, image.rows / 2), cv::Scalar(0, 0, 0), 2,
-             cv::LINE_4);
+             cv::Point(image.cols, image.rows / 2), cv::Scalar(0, 0, 0),
+             kLineThickness, cv::LINE_4);
 
     cv::line(image, cv::Point(image.cols / 2, image.rows / 2),
-             cv::Point(image.cols / 2, image.rows), cv::Scalar(0, 0, 0), 2,
-             cv::LINE_4);
+             cv::Point(image.cols / 2, image.rows), cv::Scalar(0, 0, 0),
+             kLineThickness, cv::LINE_4);
 
     // VV 선 그리기
     double radians = (90 - vv_result.angle) * CV_PI / 180.0;
@@ -211,16 +213,17 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
     cv::Point end(static_cast<int>(center.x + dx),
                   static_cast<int>(center.y - dy));
 
-    cv::line(image, center, end, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+    cv::line(image, center, end, cv::Scalar(0, 255, 0), kLineThickness,
+             cv::LINE_AA);
 
     // 가속도 벡터 그리기 (acc_x, acc_y)
     double acc_scale_factor =
-        length / 9.8;  // 9.8 m/s^2를 length 픽셀로 스케일링
+        length / kGravityAcceleration;  // 9.8 m/s^2를 length 픽셀로 스케일링
     cv::Point acc_vec(
         static_cast<int>(center.x + vv_result.acc_x * acc_scale_factor),
         static_cast<int>(center.y - vv_result.acc_y * acc_scale_factor));
-    cv::arrowedLine(image, center, acc_vec, cv::Scalar(0, 0, 255), 2,
-                    cv::LINE_AA);
+    cv::arrowedLine(image, center, acc_vec, cv::Scalar(0, 0, 255),
+                    kLineThickness, cv::LINE_AA);
 
     return image;
   } catch (const std::exception& e) {
