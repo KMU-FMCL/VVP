@@ -1,5 +1,7 @@
 #include "vvp/utils/ConfigLoader.hpp"
 
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
 
 #include <yaml-cpp/yaml.h>
@@ -7,7 +9,7 @@
 namespace vv {
 namespace utils {
 
-ConfigAll ConfigLoader::load(const std::string& filepath) {
+absl::StatusOr<ConfigAll> ConfigLoader::load(const std::string& filepath) {
   ConfigAll cfg;
   try {
     YAML::Node root = YAML::LoadFile(filepath);
@@ -63,8 +65,8 @@ ConfigAll ConfigLoader::load(const std::string& filepath) {
       }
     }
   } catch (const std::exception& e) {
-    throw std::runtime_error(absl::StrCat("Failed to load config file '",
-                                          filepath, "': ", e.what()));
+    return absl::InvalidArgumentError(absl::StrCat(
+        "Failed to load config file '", filepath, "': ", e.what()));
   }
   return cfg;
 }

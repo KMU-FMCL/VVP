@@ -1,3 +1,5 @@
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
 
 #include <iostream>
@@ -23,19 +25,21 @@ int main(int argc, char* argv[]) {
     config_path = argv[1];
   }
   std::cout << "Loading config from: " << config_path << std::endl;
-  vv::utils::ConfigAll cfg_all;
-  try {
-    cfg_all = vv::utils::ConfigLoader::load(config_path);
-  } catch (const std::exception& e) {
-    std::cerr << e.what() << std::endl;
+
+  absl::StatusOr<vv::utils::ConfigAll> cfg_result =
+      vv::utils::ConfigLoader::load(config_path);
+  if (!cfg_result.ok()) {
+    std::cerr << cfg_result.status().message() << std::endl;
     return -1;
   }
+  vv::utils::ConfigAll cfg_all = *cfg_result;
   const vv::Config& config = cfg_all.io;
 
   // 입출력 핸들러 초기화
   vv::IOHandler io_handler(config);
-  if (!io_handler.open_video_source()) {
-    std::cerr << "Error: Could not open video source." << std::endl;
+  absl::Status status = io_handler.open_video_source();
+  if (!status.ok()) {
+    std::cerr << "Error: " << status.message() << std::endl;
     return 1;
   }
 
@@ -48,8 +52,9 @@ int main(int argc, char* argv[]) {
 
   // 첫 프레임 읽기 및 비디오 출력 설정
   cv::Mat frame;
-  if (!io_handler.read_next_frame(frame)) {
-    std::cerr << "Error: Could not read first frame." << std::endl;
+  status = io_handler.read_next_frame(frame);
+  if (!status.ok()) {
+    std::cerr << "Error: " << status.message() << std::endl;
     return 1;
   }
 
@@ -64,8 +69,9 @@ int main(int argc, char* argv[]) {
   int result_width = original_width * 2;
   int result_height = static_cast<int>(original_height * 2.6);
 
-  if (!io_handler.setup_video_writer(result_width, result_height)) {
-    std::cerr << "Warning: Could not setup video writer." << std::endl;
+  status = io_handler.setup_video_writer(result_width, result_height);
+  if (!status.ok()) {
+    std::cerr << "Warning: " << status.message() << std::endl;
   }
 
   // 이전 VV 결과 초기화
@@ -77,7 +83,8 @@ int main(int argc, char* argv[]) {
     fps_counter.tick_start();
 
     // 프레임 읽기
-    if (!io_handler.read_next_frame(frame)) {
+    status = io_handler.read_next_frame(frame);
+    if (!status.ok()) {
       break;
     }
 
@@ -121,7 +128,10 @@ int main(int argc, char* argv[]) {
 
   // 결과 CSV 저장
   if (config.save_results) {
-    io_handler.save_results_to_csv(vv_estimator.get_all_results());
+    status = io_handler.save_results_to_csv(vv_estimator.get_all_results());
+    if (!status.ok()) {
+      std::cerr << "Error saving results: " << status.message() << std::endl;
+    }
   }
 
   // 평균 FPS 출력

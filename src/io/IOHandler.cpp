@@ -1,5 +1,6 @@
 #include "vvp/io/IOHandler.hpp"
 
+#include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
@@ -40,9 +41,14 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
 
   // 날짜 기반 결과 하위 디렉토리 생성 (존재하지 않을 경우)
   // 날짜 기반 결과 디렉토리 생성
-  ensure_directory_exists(date_result_dir);
-  std::cout << "Results will be saved to directory: "
-            << std::filesystem::absolute(date_result_dir).string() << std::endl;
+  absl::Status status = ensure_directory_exists(date_result_dir);
+  if (!status.ok()) {
+    std::cout << status.message() << std::endl;
+  } else {
+    std::cout << "Results will be saved to directory: "
+              << std::filesystem::absolute(date_result_dir).string()
+              << std::endl;
+  }
 
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
   if (config_.use_camera) {
@@ -81,7 +87,7 @@ IOHandler::~IOHandler() {
   cv::destroyAllWindows();
 }
 
-bool IOHandler::open_video_source() {
+absl::Status IOHandler::open_video_source() {
   if (config_.use_camera) {
     video_capture_.open(config_.camera_port, cv::CAP_DSHOW);
   } else {
@@ -89,28 +95,30 @@ bool IOHandler::open_video_source() {
   }
 
   if (!video_capture_.isOpened()) {
-    std::cerr << "Error: Could not open video source: "
-              << (config_.use_camera
-                      ? absl::StrCat("Camera #", config_.camera_port)
-                      : config_.input_file_path)
-              << std::endl;
-    return false;
+    return absl::FailedPreconditionError(absl::StrCat(
+        "Could not open video source: ",
+        (config_.use_camera ? absl::StrCat("Camera #", config_.camera_port)
+                            : config_.input_file_path)));
   }
 
-  return true;
+  return absl::OkStatus();
 }
 
-bool IOHandler::read_next_frame(cv::Mat& frame) {
+absl::Status IOHandler::read_next_frame(cv::Mat& frame) {
   if (!video_capture_.isOpened()) {
-    return false;
+    return absl::FailedPreconditionError("Video source is not opened");
   }
 
-  return video_capture_.read(frame);
+  if (!video_capture_.read(frame)) {
+    return absl::DataLossError("Failed to read frame from video source");
+  }
+
+  return absl::OkStatus();
 }
 
-bool IOHandler::setup_video_writer(int width, int height) {
+absl::Status IOHandler::setup_video_writer(int width, int height) {
   if (!video_capture_.isOpened()) {
-    return false;
+    return absl::FailedPreconditionError("Video source is not opened");
   }
 
   // 비디오 코덱 및 프레임 레이트 설정
@@ -124,18 +132,20 @@ bool IOHandler::setup_video_writer(int width, int height) {
   // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
   // 비디오 저장 디렉토리 생성
   std::filesystem::path video_path(video_file_path_);
-  ensure_directory_exists(video_path.parent_path());
+  absl::Status dir_status = ensure_directory_exists(video_path.parent_path());
+  if (!dir_status.ok()) {
+    return dir_status;
+  }
 
   video_writer_.open(video_file_path_, fourcc, fps, cv::Size(width, height));
 
   if (!video_writer_.isOpened()) {
-    std::cerr << "Error: Could not create video writer for: "
-              << video_file_path_ << std::endl;
-    return false;
+    return absl::InternalError(
+        absl::StrCat("Could not create video writer for: ", video_file_path_));
   }
 
   std::cout << "Video will be saved to: " << video_file_path_ << std::endl;
-  return true;
+  return absl::OkStatus();
 }
 
 void IOHandler::write_frame(const cv::Mat& frame) {
@@ -149,22 +159,24 @@ int IOHandler::display_frame(const cv::Mat& frame, int wait_key) {
   return cv::waitKey(wait_key);
 }
 
-bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
+absl::Status IOHandler::save_results_to_csv(
+    const std::vector<VVResult>& results) {
   if (results.empty()) {
-    std::cerr << "Error: No results to save." << std::endl;
-    return false;
+    return absl::InvalidArgumentError("No results to save");
   }
 
   // CSV 파일 열기 전에 디렉토리 존재 여부 재확인
   // CSV 저장 디렉토리 생성
   std::filesystem::path csv_path(csv_file_path_);
-  ensure_directory_exists(csv_path.parent_path());
+  absl::Status dir_status = ensure_directory_exists(csv_path.parent_path());
+  if (!dir_status.ok()) {
+    return dir_status;
+  }
 
   std::ofstream out_file(csv_file_path_);
   if (!out_file.is_open()) {
-    std::cerr << "Error: Could not open file for writing: " << csv_file_path_
-              << std::endl;
-    return false;
+    return absl::PermissionDeniedError(
+        absl::StrCat("Could not open file for writing: ", csv_file_path_));
   }
 
   // CSV 헤더 작성
@@ -181,7 +193,7 @@ bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
   out_file.close();
   std::cout << "Results saved to: " << csv_file_path_ << std::endl;
 
-  return true;
+  return absl::OkStatus();
 }
 
 cv::VideoCapture& IOHandler::get_video_capture() {
@@ -222,12 +234,14 @@ std::string IOHandler::extract_time_part(absl::string_view timestamp) {
   return "000000";
 }
 
-void IOHandler::ensure_directory_exists(const std::filesystem::path& dir) {
+absl::Status IOHandler::ensure_directory_exists(
+    const std::filesystem::path& dir) {
   try {
     std::filesystem::create_directories(dir);
+    return absl::OkStatus();
   } catch (const std::exception& e) {
-    std::cerr << "Warning: Could not create directory: " << dir << " ("
-              << e.what() << ")" << std::endl;
+    return absl::InternalError(absl::StrCat(
+        "Could not create directory: ", dir.string(), " (", e.what(), ")"));
   }
 }
 

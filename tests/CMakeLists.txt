@@ -71,6 +71,8 @@ foreach(test_source ${TEST_SOURCES})
         absl::span
         absl::flat_hash_map
         absl::flat_hash_set
+        absl::status
+        absl::statusor
     )
     
     # 테스트에 사용되는 헤더 파일 디렉토리 추가

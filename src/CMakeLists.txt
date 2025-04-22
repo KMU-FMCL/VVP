@@ -40,6 +40,8 @@ target_link_libraries(vv_estimator
         absl::span
         absl::flat_hash_map
         absl::flat_hash_set
+        absl::status
+        absl::statusor
 )
 
 # 컴파일 옵션 추가
