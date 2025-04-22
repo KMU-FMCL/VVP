@@ -33,14 +33,14 @@ class VVEstimator {
    * @param previousResult 이전 프레임의 VV 결과 (스무딩을 위해 사용)
    * @return 추정된 VV 결과
    */
-  VVResult estimate_vv(const std::vector<float>& hogHistogram,
-                       const VVResult& previousResult);
+  auto estimate_vv(const std::vector<float>& hog_histogram,
+                   const VVResult& previous_result) -> VVResult;
 
   /**
    * @brief 모든 VV 결과 얻기
    * @return 지금까지 계산된 모든 VV 결과 벡터
    */
-  const std::vector<VVResult>& get_all_results() const;
+  auto get_all_results() const -> const std::vector<VVResult>&;
 
   /**
    * @brief 히스토그램 시각화 이미지 생성
@@ -50,10 +50,10 @@ class VVEstimator {
    * @param height 이미지 높이
    * @return 히스토그램 시각화 이미지
    */
-  cv::Mat create_histogram_visualization(const std::vector<float>& hogHistogram,
-                                         const VVResult& vvResult,
-                                         int width,
-                                         int height) const;
+  auto create_histogram_visualization(const std::vector<float>& hog_histogram,
+                                      const VVResult& vv_result,
+                                      int width,
+                                      int height) const -> cv::Mat;
 
  private:
   std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
@@ -61,13 +61,14 @@ class VVEstimator {
 
   // 상수 정의
   static constexpr int kTopPeakCount = 3;  ///< 상위 피크 개수
-  static constexpr double kHistogramHeightScale =
-      0.8;  ///< 히스토그램 높이 스케일
-  static constexpr float kHistogramMinValue = 0.001f;  ///< 히스토그램 최소값
+  static constexpr float kHistogramHeightScale =
+      0.8F;  ///< 히스토그램 높이 스케일
+  static constexpr float kHistogramMinValue = 0.001F;  ///< 히스토그램 최소값
   static constexpr int kTickStep = 30;            ///< 히스토그램 X축 눈금 간격
   static constexpr int kThickLineWidth = 2;       ///< 굵은 선 두께
   static constexpr int kThinLineWidth = 1;        ///< 얇은 선 두께
   static constexpr double kLabelFontScale = 0.4;  ///< 레이블 폰트 크기
+  static constexpr int kWhiteColor = 255;         ///< 흰색 RGB 값
 };
 
 }  // namespace vv
