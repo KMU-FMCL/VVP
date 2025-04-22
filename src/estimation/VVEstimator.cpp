@@ -1,5 +1,7 @@
 #include "vvp/estimation/VVEstimator.hpp"
 
+#include "absl/strings/str_format.h"
+
 #include <algorithm>
 #include <numeric>
 
@@ -156,7 +158,7 @@ cv::Mat VVEstimator::create_histogram_visualization(
              cv::Scalar(0, 0, 0), kThinLineWidth, cv::LINE_AA);
 
     // 눈금 레이블
-    cv::putText(hist_image, std::to_string(angle),
+    cv::putText(hist_image, absl::StrFormat("%d", angle),
                 cv::Point(x - 10, height - 10), cv::FONT_HERSHEY_SIMPLEX,
                 kLabelFontScale, cv::Scalar(0, 0, 0), kThinLineWidth,
                 cv::LINE_AA);

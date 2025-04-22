@@ -1,10 +1,12 @@
 #include "vvp/io/IOHandler.hpp"
 
-#include <chrono>
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
+#include "absl/time/clock.h"
+#include "absl/time/time.h"
+
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <sstream>
 
 #include <filesystem>
 #include <opencv2/imgproc.hpp>
@@ -45,8 +47,8 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
   if (config_.use_camera) {
     // 카메라 입력의 경우, 파일 이름에 'camera'와 시간만 포함
-    std::string csv_file_name = "camera_" + time_part + ".csv";
-    std::string video_file_name = "camera_" + time_part + ".mp4";
+    std::string csv_file_name = absl::StrCat("camera_", time_part, ".csv");
+    std::string video_file_name = absl::StrCat("camera_", time_part, ".mp4");
     csv_file_path_ = (date_result_dir / csv_file_name).string();
     video_file_path_ = (date_result_dir / video_file_name).string();
   } else {
@@ -58,9 +60,9 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
 
     // 최종 파일 이름 구성: VV_ + 원본이름 + _ + 시간 + 확장자
     std::string csv_file_name =
-        "VV_" + filename_without_ext + "_" + time_part + ".csv";
+        absl::StrCat("VV_", filename_without_ext, "_", time_part, ".csv");
     std::string video_file_name =
-        "VV_Video_" + filename_without_ext + "_" + time_part + ".mp4";
+        absl::StrCat("VV_Video_", filename_without_ext, "_", time_part, ".mp4");
     csv_file_path_ = (date_result_dir / csv_file_name).string();
     video_file_path_ = (date_result_dir / video_file_name).string();
   }
@@ -89,7 +91,7 @@ bool IOHandler::open_video_source() {
   if (!video_capture_.isOpened()) {
     std::cerr << "Error: Could not open video source: "
               << (config_.use_camera
-                      ? "Camera #" + std::to_string(config_.camera_port)
+                      ? absl::StrCat("Camera #", config_.camera_port)
                       : config_.input_file_path)
               << std::endl;
     return false;
@@ -171,8 +173,9 @@ bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
 
   // 데이터 작성
   for (const auto& result : results) {
-    out_file << result.acc_x << "," << result.acc_y << "," << result.angle_rad
-             << "," << result.angle << std::endl;
+    out_file << absl::StrFormat("%.6f,%.6f,%.6f,%.2f", result.acc_x,
+                                result.acc_y, result.angle_rad, result.angle)
+             << std::endl;
   }
 
   out_file.close();
@@ -186,7 +189,7 @@ cv::VideoCapture& IOHandler::get_video_capture() {
 }
 
 std::string IOHandler::generate_output_file_path(
-    const std::string& prefix, const std::string& extension) const {
+    absl::string_view prefix, absl::string_view extension) const {
   // 현재 날짜 기준 디렉토리와 시간을 포함한 파일 이름 생성
   std::string current_date = utils::get_current_date_string();
   std::filesystem::path base_result_dir = "../results";
@@ -202,28 +205,19 @@ std::string IOHandler::generate_output_file_path(
     time_part = timestamp.substr(underscore_pos + 1);  // "HHMMSS" 추출
   }
 
-  return (date_result_dir / (prefix + "_" + time_part + extension)).string();
+  return (date_result_dir / absl::StrCat(prefix, "_", time_part, extension))
+      .string();
 }
 
 std::string IOHandler::get_current_time_stamp() const {
-  auto now = std::chrono::system_clock::now();
-  std::time_t time = std::chrono::system_clock::to_time_t(now);
-  std::stringstream ss;
-  ss << std::put_time(std::localtime(&time), kIsoTimeFormat.c_str());
-  return ss.str();
+  absl::Time now = absl::Now();
+  return absl::FormatTime(kIsoTimeFormat, now, absl::LocalTimeZone());
 }
 
-}  // namespace vv
-
-//------------------------------------------------------------------------------
-// Helper implementations
-//------------------------------------------------------------------------------
-namespace vv {
-
-std::string IOHandler::extract_time_part(const std::string& timestamp) {
+std::string IOHandler::extract_time_part(absl::string_view timestamp) {
   size_t pos = timestamp.find('_');
-  if (pos != std::string::npos && pos + 1 < timestamp.size()) {
-    return timestamp.substr(pos + 1);
+  if (pos != absl::string_view::npos && pos + 1 < timestamp.size()) {
+    return std::string(timestamp.substr(pos + 1));
   }
   return "000000";
 }
@@ -236,4 +230,5 @@ void IOHandler::ensure_directory_exists(const std::filesystem::path& dir) {
               << e.what() << ")" << std::endl;
   }
 }
+
 }  // namespace vv

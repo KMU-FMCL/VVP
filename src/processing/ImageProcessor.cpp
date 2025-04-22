@@ -1,5 +1,8 @@
 #include "vvp/processing/ImageProcessor.hpp"
 
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -174,9 +177,7 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
 
   // FPS 정보 추가
   if (fps > 0.0f) {
-    std::stringstream ss;
-    ss << "FPS: " << std::fixed << std::setprecision(1) << fps;
-    cv::putText(result, ss.str(),
+    cv::putText(result, absl::StrFormat("FPS: %.1f", fps),
                 cv::Point(kFpsTextPositionX, kFpsTextPositionY),
                 cv::FONT_HERSHEY_SIMPLEX, kFpsTextScale, cv::Scalar(0, 255, 0),
                 kLineThickness);
@@ -190,7 +191,7 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
   try {
     // VV 각도 텍스트 추가
     cv::putText(
-        image, " VV_dig=" + std::to_string(static_cast<int>(vv_result.angle)),
+        image, absl::StrCat(" VV_dig=", static_cast<int>(vv_result.angle)),
         cv::Point(kVvTextPositionX, kVvTextPositionY), cv::FONT_HERSHEY_PLAIN,
         kVvTextScale, cv::Scalar(0, 255, 0), kLineThickness, cv::LINE_AA);
 

@@ -1,5 +1,7 @@
 #include "vvp/utils/ConfigLoader.hpp"
 
+#include "absl/strings/str_cat.h"
+
 #include <yaml-cpp/yaml.h>
 
 namespace vv {
@@ -61,8 +63,8 @@ ConfigAll ConfigLoader::load(const std::string& filepath) {
       }
     }
   } catch (const std::exception& e) {
-    throw std::runtime_error(std::string("Failed to load config file '") +
-                             filepath + "': " + e.what());
+    throw std::runtime_error(absl::StrCat("Failed to load config file '",
+                                          filepath, "': ", e.what()));
   }
   return cfg;
 }

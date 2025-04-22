@@ -1,3 +1,5 @@
+#include "absl/strings/str_cat.h"
+
 #include <iostream>
 
 #include <opencv2/core.hpp>
@@ -16,7 +18,7 @@ int main(int argc, char* argv[]) {
   vv::utils::print_opencv_info();
 
   // 설정 파일 경로(기본값: 프로젝트 루트의 config/config.yaml)
-  std::string config_path = std::string(PROJECT_ROOT) + "/config/config.yaml";
+  std::string config_path = absl::StrCat(PROJECT_ROOT, "/config/config.yaml");
   if (argc >= 2) {
     config_path = argv[1];
   }

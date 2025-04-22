@@ -1,9 +1,10 @@
 #include "vvp/utils/Helpers.hpp"
 
-#include <chrono>
-#include <iomanip>
+#include "absl/strings/str_format.h"
+#include "absl/time/clock.h"
+#include "absl/time/time.h"
+
 #include <iostream>
-#include <sstream>
 
 #include <cstring>
 #include <opencv2/core.hpp>
@@ -50,25 +51,14 @@ Config parse_command_line_args(int argc, char* argv[]) {
   return config;
 }
 
-std::string format_current_time(const std::string& format) {
-  auto now = std::chrono::system_clock::now();
-  auto time = std::chrono::system_clock::to_time_t(now);
-
-  std::stringstream ss;
-  ss << std::put_time(std::localtime(&time), format.c_str());
-
-  return ss.str();
+std::string format_current_time(absl::string_view format) {
+  absl::Time now = absl::Now();
+  return absl::FormatTime(format, now, absl::LocalTimeZone());
 }
 
 std::string get_current_date_string() {
-  auto now = std::chrono::system_clock::now();
-  auto time = std::chrono::system_clock::to_time_t(now);
-
-  std::stringstream ss;
-  // "%Y%m%d" 포맷 사용 - 년월일만 반환
-  ss << std::put_time(std::localtime(&time), "%Y%m%d");
-
-  return ss.str();
+  absl::Time now = absl::Now();
+  return absl::FormatTime("%Y%m%d", now, absl::LocalTimeZone());
 }
 
 void print_usage() {
