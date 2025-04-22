@@ -9,11 +9,11 @@
 
 namespace vv {
 
-ImageProcessor::ImageProcessor(const HOGParams& params) : m_params(params) {
+ImageProcessor::ImageProcessor(const HOGParams& params) : params_(params) {
   // 침식 연산을 위한 커널 초기화
-  m_erodeKernel = cv::getStructuringElement(
+  erode_kernel_ = cv::getStructuringElement(
       cv::MORPH_RECT,
-      cv::Size(m_params.erodeKernelSize, m_params.erodeKernelSize));
+      cv::Size(params_.erodeKernelSize, params_.erodeKernelSize));
 }
 
 HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
@@ -25,8 +25,8 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
 
   // 가우시안 블러 적용
   cv::GaussianBlur(gray, gray,
-                   cv::Size(m_params.blurKernelSize, m_params.blurKernelSize),
-                   m_params.blurSigma);
+                   cv::Size(params_.blurKernelSize, params_.blurKernelSize),
+                   params_.blurSigma);
 
   // 0-1 범위로 정규화
   gray.convertTo(gray, CV_32F);
@@ -49,10 +49,10 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
   cv::normalize(mag, mag, 0, 1, cv::NORM_MINMAX);
 
   cv::Mat magFilter;
-  cv::threshold(mag, magFilter, m_params.thresholdValue, 1, cv::THRESH_BINARY);
+  cv::threshold(mag, magFilter, params_.thresholdValue, 1, cv::THRESH_BINARY);
 
   // 침식 연산 적용
-  cv::erode(magFilter, magFilter, m_erodeKernel);
+  cv::erode(magFilter, magFilter, erode_kernel_);
   cv::normalize(magFilter, magFilter, 0, 1, cv::NORM_MINMAX);
 
   // 각도 조정 (0-179도 범위로)
@@ -67,7 +67,7 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
   temp.copyTo(angMod, mask);
 
   // 히스토그램 계산
-  std::vector<float> hist(m_params.binCount, 0.0f);
+  std::vector<float> hist(params_.binCount, 0.0f);
 
   // 수동 히스토그램 계산: 각 픽셀의 각도 인덱스에 필터된 매그니튜드 누적
   const int rows = angMod.rows;
@@ -78,7 +78,7 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
     for (int j = 0; j < cols; ++j) {
       int bin = static_cast<int>(angPtr[j]);
       if (static_cast<unsigned>(bin) <
-          static_cast<unsigned>(m_params.binCount)) {
+          static_cast<unsigned>(params_.binCount)) {
         hist[bin] += magPtr[j];
       }
     }

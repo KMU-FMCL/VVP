@@ -14,13 +14,13 @@
 
 namespace vv {
 
-IOHandler::IOHandler(const Config& config) : m_config(config) {
+IOHandler::IOHandler(const Config& config) : config_(config) {
   // Resolve relative input path against project root
-  if (!m_config.useCamera) {
-    std::filesystem::path inPath(m_config.inputFilePath);
+  if (!config_.useCamera) {
+    std::filesystem::path inPath(config_.inputFilePath);
     if (!inPath.is_absolute()) {
       inPath = std::filesystem::path(PROJECT_ROOT) / inPath;
-      m_config.inputFilePath = inPath.string();
+      config_.inputFilePath = inPath.string();
     }
   }
   // 현재 날짜 및 전체 타임스탬프 가져오기
@@ -42,15 +42,15 @@ IOHandler::IOHandler(const Config& config) : m_config(config) {
             << std::filesystem::absolute(dateResultDir).string() << std::endl;
 
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
-  if (m_config.useCamera) {
+  if (config_.useCamera) {
     // 카메라 입력의 경우, 파일 이름에 'camera'와 시간만 포함
     std::string csvFileName = "camera_" + timePart + ".csv";
     std::string videoFileName = "camera_" + timePart + ".mp4";
-    m_csvFilePath = (dateResultDir / csvFileName).string();
-    m_videoFilePath = (dateResultDir / videoFileName).string();
+    csv_file_path_ = (dateResultDir / csvFileName).string();
+    video_file_path_ = (dateResultDir / videoFileName).string();
   } else {
     // 파일 경로 처리에 std::filesystem 사용
-    std::filesystem::path inputPath(m_config.inputFilePath);
+    std::filesystem::path inputPath(config_.inputFilePath);
 
     // stem()은 확장자를 제외한 파일 이름만 가져옵니다
     std::string filenameWithoutExt = inputPath.stem().string();
@@ -60,36 +60,36 @@ IOHandler::IOHandler(const Config& config) : m_config(config) {
         "VV_" + filenameWithoutExt + "_" + timePart + ".csv";
     std::string videoFileName =
         "VV_Video_" + filenameWithoutExt + "_" + timePart + ".mp4";
-    m_csvFilePath = (dateResultDir / csvFileName).string();
-    m_videoFilePath = (dateResultDir / videoFileName).string();
+    csv_file_path_ = (dateResultDir / csvFileName).string();
+    video_file_path_ = (dateResultDir / videoFileName).string();
   }
 }
 
 IOHandler::~IOHandler() {
   // 리소스 정리
-  if (m_videoCapture.isOpened()) {
-    m_videoCapture.release();
+  if (video_capture_.isOpened()) {
+    video_capture_.release();
   }
 
-  if (m_videoWriter.isOpened()) {
-    m_videoWriter.release();
+  if (video_writer_.isOpened()) {
+    video_writer_.release();
   }
 
   cv::destroyAllWindows();
 }
 
 bool IOHandler::openVideoSource() {
-  if (m_config.useCamera) {
-    m_videoCapture.open(m_config.cameraPort, cv::CAP_DSHOW);
+  if (config_.useCamera) {
+    video_capture_.open(config_.cameraPort, cv::CAP_DSHOW);
   } else {
-    m_videoCapture.open(m_config.inputFilePath);
+    video_capture_.open(config_.inputFilePath);
   }
 
-  if (!m_videoCapture.isOpened()) {
+  if (!video_capture_.isOpened()) {
     std::cerr << "Error: Could not open video source: "
-              << (m_config.useCamera
-                      ? "Camera #" + std::to_string(m_config.cameraPort)
-                      : m_config.inputFilePath)
+              << (config_.useCamera
+                      ? "Camera #" + std::to_string(config_.cameraPort)
+                      : config_.inputFilePath)
               << std::endl;
     return false;
   }
@@ -98,21 +98,21 @@ bool IOHandler::openVideoSource() {
 }
 
 bool IOHandler::readNextFrame(cv::Mat& frame) {
-  if (!m_videoCapture.isOpened()) {
+  if (!video_capture_.isOpened()) {
     return false;
   }
 
-  return m_videoCapture.read(frame);
+  return video_capture_.read(frame);
 }
 
 bool IOHandler::setupVideoWriter(int width, int height) {
-  if (!m_videoCapture.isOpened()) {
+  if (!video_capture_.isOpened()) {
     return false;
   }
 
   // 비디오 코덱 및 프레임 레이트 설정
   int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
-  double fps = m_videoCapture.get(cv::CAP_PROP_FPS);
+  double fps = video_capture_.get(cv::CAP_PROP_FPS);
 
   if (fps <= 0) {
     fps = 30.0;  // 기본값 설정
@@ -120,24 +120,24 @@ bool IOHandler::setupVideoWriter(int width, int height) {
 
   // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
   // 비디오 저장 디렉토리 생성
-  std::filesystem::path videoPath(m_videoFilePath);
+  std::filesystem::path videoPath(video_file_path_);
   ensureDirectoryExists(videoPath.parent_path());
 
-  m_videoWriter.open(m_videoFilePath, fourcc, fps, cv::Size(width, height));
+  video_writer_.open(video_file_path_, fourcc, fps, cv::Size(width, height));
 
-  if (!m_videoWriter.isOpened()) {
-    std::cerr << "Error: Could not create video writer for: " << m_videoFilePath
-              << std::endl;
+  if (!video_writer_.isOpened()) {
+    std::cerr << "Error: Could not create video writer for: "
+              << video_file_path_ << std::endl;
     return false;
   }
 
-  std::cout << "Video will be saved to: " << m_videoFilePath << std::endl;
+  std::cout << "Video will be saved to: " << video_file_path_ << std::endl;
   return true;
 }
 
 void IOHandler::writeFrame(const cv::Mat& frame) {
-  if (m_videoWriter.isOpened()) {
-    m_videoWriter.write(frame);
+  if (video_writer_.isOpened()) {
+    video_writer_.write(frame);
   }
 }
 
@@ -154,12 +154,12 @@ bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
 
   // CSV 파일 열기 전에 디렉토리 존재 여부 재확인
   // CSV 저장 디렉토리 생성
-  std::filesystem::path csvPath(m_csvFilePath);
+  std::filesystem::path csvPath(csv_file_path_);
   ensureDirectoryExists(csvPath.parent_path());
 
-  std::ofstream outFile(m_csvFilePath);
+  std::ofstream outFile(csv_file_path_);
   if (!outFile.is_open()) {
-    std::cerr << "Error: Could not open file for writing: " << m_csvFilePath
+    std::cerr << "Error: Could not open file for writing: " << csv_file_path_
               << std::endl;
     return false;
   }
@@ -175,13 +175,13 @@ bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
   }
 
   outFile.close();
-  std::cout << "Results saved to: " << m_csvFilePath << std::endl;
+  std::cout << "Results saved to: " << csv_file_path_ << std::endl;
 
   return true;
 }
 
 cv::VideoCapture& IOHandler::getVideoCapture() {
-  return m_videoCapture;
+  return video_capture_;
 }
 
 std::string IOHandler::generateOutputFilePath(
@@ -206,11 +206,9 @@ std::string IOHandler::generateOutputFilePath(
 
 std::string IOHandler::getCurrentTimeStamp() const {
   auto now = std::chrono::system_clock::now();
-  auto time = std::chrono::system_clock::to_time_t(now);
-
+  std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream ss;
-  ss << std::put_time(std::localtime(&time), ISO_TIME_FORMAT.c_str());
-
+  ss << std::put_time(std::localtime(&time), kIsoTimeFormat.c_str());
   return ss.str();
 }
 

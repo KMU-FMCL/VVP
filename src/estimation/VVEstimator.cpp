@@ -8,11 +8,11 @@
 
 namespace vv {
 
-VVEstimator::VVEstimator() : m_params() {
+VVEstimator::VVEstimator() : params_() {
   // 기본 파라미터 사용
 }
 //------------------------------------------------------------------------------
-VVEstimator::VVEstimator(const VVParams& params) : m_params(params) {
+VVEstimator::VVEstimator(const VVParams& params) : params_(params) {
   // 사용자 정의 파라미터 사용
 }
 
@@ -33,7 +33,7 @@ VVResult VVEstimator::estimateVV(const std::vector<float>& hogHistogram,
   std::vector<int> bestIndices;
   for (size_t i = 0; i < indices.size(); ++i) {
     int angle = indices[i];
-    if (angle >= m_params.minAngle && angle <= m_params.maxAngle) {
+    if (angle >= params_.minAngle && angle <= params_.maxAngle) {
       bestIndices.push_back(angle);
     }
   }
@@ -74,20 +74,20 @@ VVResult VVEstimator::estimateVV(const std::vector<float>& hogHistogram,
   }
 
   // 시간적 스무딩 적용
-  result.angle = m_params.smoothingFactor * result.angle +
-                 (1.0 - m_params.smoothingFactor) * previousResult.angle;
+  result.angle = params_.smoothingFactor * result.angle +
+                 (1.0 - params_.smoothingFactor) * previousResult.angle;
 
   // 가속도 계산
   result.updateAcceleration();
 
   // 결과 저장
-  m_results.push_back(result);
+  results_.push_back(result);
 
   return result;
 }
 
 const std::vector<VVResult>& VVEstimator::getAllResults() const {
-  return m_results;
+  return results_;
 }
 
 cv::Mat VVEstimator::createHistogramVisualization(
@@ -136,8 +136,8 @@ cv::Mat VVEstimator::createHistogramVisualization(
            cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
 
   // 경계선 표시 (minAngle, maxAngle)
-  int xMin = width - m_params.minAngle * barWidth - barWidth / 2;
-  int xMax = width - m_params.maxAngle * barWidth - barWidth / 2;
+  int xMin = width - params_.minAngle * barWidth - barWidth / 2;
+  int xMax = width - params_.maxAngle * barWidth - barWidth / 2;
 
   cv::line(histImage, cv::Point(xMin, 0), cv::Point(xMin, height),
            cv::Scalar(0, 0, 0), 1, cv::LINE_AA);
