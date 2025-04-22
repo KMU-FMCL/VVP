@@ -1,6 +1,7 @@
 #ifndef VVP_IO_IOHANDLER_H_
 #define VVP_IO_IOHANDLER_H_
 
+#include "absl/status/status.h"
 #include "absl/strings/string_view.h"
 
 #include <string>
@@ -34,24 +35,24 @@ class IOHandler {
 
   /**
    * @brief 비디오 입력 준비
-   * @return 성공 여부
+   * @return 성공 상태
    */
-  bool open_video_source();
+  absl::Status open_video_source();
 
   /**
    * @brief 다음 프레임 읽기
    * @param[out] frame 읽은 프레임이 저장될 Mat
-   * @return 프레임을 성공적으로 읽었는지 여부
+   * @return 프레임을 성공적으로 읽었는지 상태
    */
-  bool read_next_frame(cv::Mat& frame);
+  absl::Status read_next_frame(cv::Mat& frame);
 
   /**
    * @brief 결과 비디오 파일 준비
    * @param width 비디오 너비
    * @param height 비디오 높이
-   * @return 성공 여부
+   * @return 성공 상태
    */
-  bool setup_video_writer(int width, int height);
+  absl::Status setup_video_writer(int width, int height);
 
   /**
    * @brief 프레임을 결과 비디오에 쓰기
@@ -70,9 +71,9 @@ class IOHandler {
   /**
    * @brief 처리 결과 CSV 파일로 저장
    * @param results VV 결과 벡터
-   * @return 성공 여부
+   * @return 성공 상태
    */
-  bool save_results_to_csv(const std::vector<VVResult>& results);
+  absl::Status save_results_to_csv(const std::vector<VVResult>& results);
 
   /**
    * @brief VideoCapture 객체 얻기
@@ -112,8 +113,9 @@ class IOHandler {
   /**
    * @brief 디렉토리가 존재하지 않으면 생성
    * @param dir 생성할 디렉토리 경로
+   * @return 성공 상태
    */
-  static void ensure_directory_exists(const std::filesystem::path& dir);
+  static absl::Status ensure_directory_exists(const std::filesystem::path& dir);
 };
 
 }  // namespace vv
