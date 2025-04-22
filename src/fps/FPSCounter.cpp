@@ -10,11 +10,11 @@ FPSCounter::FPSCounter()
   frame_start_time_ = overall_start_time_;  // 초기화
 }
 
-void FPSCounter::tickStart() {
+void FPSCounter::tick_start() {
   frame_start_time_ = std::chrono::high_resolution_clock::now();
 }
 
-void FPSCounter::tickEnd() {
+void FPSCounter::tick_end() {
   auto frameEndTime = std::chrono::high_resolution_clock::now();
   auto frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(
       frameEndTime - frame_start_time_);
@@ -30,22 +30,22 @@ void FPSCounter::tickEnd() {
   frame_count_++;
 }
 
-double FPSCounter::getFPS() const {
+double FPSCounter::get_fps() const {
   return current_fps_;
 }
 
-double FPSCounter::getAverageFPS() const {
+double FPSCounter::get_average_fps() const {
   if (frame_count_ > 0 && total_processing_time_sec_ > 1e-9) {
     return frame_count_ / total_processing_time_sec_;
   }
   return 0.0;
 }
 
-long long FPSCounter::getFrameCount() const {
+long long FPSCounter::get_frame_count() const {
   return frame_count_;
 }
 
-double FPSCounter::getTotalProcessingTimeSec() const {
+double FPSCounter::get_total_processing_time_sec() const {
   return total_processing_time_sec_;
 }
 

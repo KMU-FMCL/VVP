@@ -16,7 +16,7 @@ ImageProcessor::ImageProcessor(const HOGParams& params) : params_(params) {
       cv::Size(params_.erodeKernelSize, params_.erodeKernelSize));
 }
 
-HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
+HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
   HOGResult result;
 
   // 그레이스케일 변환
@@ -94,7 +94,7 @@ HOGResult ImageProcessor::computeHOG(const cv::Mat& image) {
   return result;
 }
 
-cv::Mat ImageProcessor::resizeImage(const cv::Mat& image, int scale) const {
+cv::Mat ImageProcessor::resize_image(const cv::Mat& image, int scale) const {
   if (scale <= 0 || scale == 1) {
     return image.clone();
   }
@@ -106,7 +106,7 @@ cv::Mat ImageProcessor::resizeImage(const cv::Mat& image, int scale) const {
   return resized;
 }
 
-cv::Mat ImageProcessor::rotateImage(const cv::Mat& image, double angle) const {
+cv::Mat ImageProcessor::rotate_image(const cv::Mat& image, double angle) const {
   cv::Point2f center(image.cols / 2.0f, image.rows / 2.0f);
   cv::Mat rotMat = cv::getRotationMatrix2D(center, angle, 1.0);
   cv::Mat rotated;
@@ -116,14 +116,14 @@ cv::Mat ImageProcessor::rotateImage(const cv::Mat& image, double angle) const {
   return rotated;
 }
 
-cv::Mat ImageProcessor::createVisualization(const cv::Mat& inputImage,
-                                            const cv::Mat& calibratedImage,
-                                            const HOGResult& hogResult,
-                                            const VVResult& vvResult,
-                                            const cv::Mat& histogramImage,
-                                            float fps) const {
+cv::Mat ImageProcessor::create_visualization(const cv::Mat& inputImage,
+                                             const cv::Mat& calibratedImage,
+                                             const HOGResult& hogResult,
+                                             const VVResult& vvResult,
+                                             const cv::Mat& histogramImage,
+                                             float fps) const {
   // 원본 이미지에 VV 표시 추가
-  cv::Mat inputWithVV = drawVVIndicators(inputImage.clone(), vvResult);
+  cv::Mat inputWithVV = draw_vv_indicators(inputImage.clone(), vvResult);
 
   // 보정된 이미지에 수평선 추가
   cv::Mat calibratedWithLine = calibratedImage.clone();
@@ -183,8 +183,8 @@ cv::Mat ImageProcessor::createVisualization(const cv::Mat& inputImage,
   return result;
 }
 
-cv::Mat ImageProcessor::drawVVIndicators(cv::Mat image,
-                                         const VVResult& vvResult) const {
+cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
+                                           const VVResult& vvResult) const {
   try {
     // VV 각도 텍스트 추가
     cv::putText(image,
@@ -198,25 +198,34 @@ cv::Mat ImageProcessor::drawVVIndicators(cv::Mat image,
              cv::LINE_4);
 
     cv::line(image, cv::Point(image.cols / 2, image.rows / 2),
-             cv::Point(image.cols / 2, 0), cv::Scalar(0, 0, 0), 2, cv::LINE_4);
+             cv::Point(image.cols / 2, image.rows), cv::Scalar(0, 0, 0), 2,
+             cv::LINE_4);
 
-    // VV 방향 화살표 추가
-    int arrowLength = image.rows / 3;
-    cv::Point2f center(image.cols / 2.0f, image.rows / 2.0f);
-    cv::Point2f end(center.x + arrowLength * std::cos(vvResult.angleRad),
-                    center.y - arrowLength * std::sin(vvResult.angleRad));
+    // VV 선 그리기
+    double radians = (90 - vvResult.angle) * CV_PI / 180.0;
+    double length = static_cast<double>(image.rows) / 2.0;
+    double dx = length * std::cos(radians);
+    double dy = length * std::sin(radians);
 
-    cv::arrowedLine(image, center, end, cv::Scalar(0, 255, 0), 4, cv::LINE_AA);
+    cv::Point center(image.cols / 2, image.rows / 2);
+    cv::Point end(static_cast<int>(center.x + dx),
+                  static_cast<int>(center.y - dy));
 
-    // VV 각도 표시 (원호)
-    cv::ellipse(image, center, cv::Size(image.rows / 6, image.rows / 6), 0, 0,
-                -vvResult.angle, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+    cv::line(image, center, end, cv::Scalar(0, 255, 0), 2, cv::LINE_AA);
+
+    // 가속도 벡터 그리기 (accX, accY)
+    double accScaleFactor = length / 9.8;  // 9.8 m/s^2를 length 픽셀로 스케일링
+    cv::Point accVec(
+        static_cast<int>(center.x + vvResult.accX * accScaleFactor),
+        static_cast<int>(center.y - vvResult.accY * accScaleFactor));
+    cv::arrowedLine(image, center, accVec, cv::Scalar(0, 0, 255), 2,
+                    cv::LINE_AA);
+
+    return image;
   } catch (const std::exception& e) {
-    // 예외 발생 시 원본 이미지 반환
     std::cerr << "Error drawing VV indicators: " << e.what() << std::endl;
+    return image;
   }
-
-  return image;
 }
 
 }  // namespace vv

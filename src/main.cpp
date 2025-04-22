@@ -9,11 +9,11 @@
 #include "vvp/io/IOHandler.hpp"
 #include "vvp/processing/ImageProcessor.hpp"
 #include "vvp/utils/ConfigLoader.hpp"  // YAML config loader
-#include "vvp/utils/Helpers.hpp"       // printOpenCVInfo
+#include "vvp/utils/Helpers.hpp"       // print_opencv_info
 
 int main(int argc, char* argv[]) {
   // OpenCV 정보 출력
-  vv::utils::printOpenCVInfo();
+  vv::utils::print_opencv_info();
 
   // 설정 파일 경로(기본값: 프로젝트 루트의 config/config.yaml)
   std::string configPath = std::string(PROJECT_ROOT) + "/config/config.yaml";
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
   // 입출력 핸들러 초기화
   vv::IOHandler ioHandler(config);
-  if (!ioHandler.openVideoSource()) {
+  if (!ioHandler.open_video_source()) {
     std::cerr << "Error: Could not open video source." << std::endl;
     return 1;
   }
@@ -46,13 +46,13 @@ int main(int argc, char* argv[]) {
 
   // 첫 프레임 읽기 및 비디오 출력 설정
   cv::Mat frame;
-  if (!ioHandler.readNextFrame(frame)) {
+  if (!ioHandler.read_next_frame(frame)) {
     std::cerr << "Error: Could not read first frame." << std::endl;
     return 1;
   }
 
   // 이미지 크기 조정
-  frame = imageProcessor.resizeImage(frame, config.scale);
+  frame = imageProcessor.resize_image(frame, config.scale);
 
   // 비디오 작성기 설정
   int originalWidth = frame.cols;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
   int resultWidth = originalWidth * 2;
   int resultHeight = static_cast<int>(originalHeight * 2.6);
 
-  if (!ioHandler.setupVideoWriter(resultWidth, resultHeight)) {
+  if (!ioHandler.setup_video_writer(resultWidth, resultHeight)) {
     std::cerr << "Warning: Could not setup video writer." << std::endl;
   }
 
@@ -72,44 +72,44 @@ int main(int argc, char* argv[]) {
   // 메인 처리 루프
   while (true) {
     // FPS 측정 시작
-    fpsCounter.tickStart();
+    fpsCounter.tick_start();
 
     // 프레임 읽기
-    if (!ioHandler.readNextFrame(frame)) {
+    if (!ioHandler.read_next_frame(frame)) {
       break;
     }
 
     // 이미지 크기 조정
-    frame = imageProcessor.resizeImage(frame, config.scale);
+    frame = imageProcessor.resize_image(frame, config.scale);
 
     // HOG 계산
-    vv::HOGResult hogResult = imageProcessor.computeHOG(frame);
+    vv::HOGResult hogResult = imageProcessor.compute_hog(frame);
 
     // VV 추정
     vv::VVResult vvResult =
-        vvEstimator.estimateVV(hogResult.histogram, previousResult);
+        vvEstimator.estimate_vv(hogResult.histogram, previousResult);
     previousResult = vvResult;
 
     // 이미지 회전 (보정)
     cv::Mat calibratedImage =
-        imageProcessor.rotateImage(frame, 90 - vvResult.angle);
+        imageProcessor.rotate_image(frame, 90 - vvResult.angle);
 
     // 히스토그램 시각화 생성
-    cv::Mat histogramImage = vvEstimator.createHistogramVisualization(
+    cv::Mat histogramImage = vvEstimator.create_histogram_visualization(
         hogResult.histogram, vvResult, resultWidth, originalHeight * 0.6);
 
     // 시각화 이미지 생성
-    cv::Mat visualizationResult = imageProcessor.createVisualization(
+    cv::Mat visualizationResult = imageProcessor.create_visualization(
         frame, calibratedImage, hogResult, vvResult, histogramImage,
-        fpsCounter.getFPS()  // FPS 정보 전달
+        fpsCounter.get_fps()  // FPS 정보 전달
     );
 
     // 결과 표시 및 저장
-    int key = ioHandler.displayFrame(visualizationResult);
-    ioHandler.writeFrame(visualizationResult);
+    int key = ioHandler.display_frame(visualizationResult);
+    ioHandler.write_frame(visualizationResult);
 
     // FPS 측정 종료
-    fpsCounter.tickEnd();
+    fpsCounter.tick_end();
 
     // ESC 키가 눌리면 종료
     if (key == 27) {
@@ -119,15 +119,15 @@ int main(int argc, char* argv[]) {
 
   // 결과 CSV 저장
   if (config.saveResults) {
-    ioHandler.saveResultsToCSV(vvEstimator.getAllResults());
+    ioHandler.save_results_to_csv(vvEstimator.get_all_results());
   }
 
   // 평균 FPS 출력
-  std::cout << "Average FPS: " << fpsCounter.getAverageFPS() << std::endl;
-  std::cout << "Total frames processed: " << fpsCounter.getFrameCount()
+  std::cout << "Average FPS: " << fpsCounter.get_average_fps() << std::endl;
+  std::cout << "Total frames processed: " << fpsCounter.get_frame_count()
             << std::endl;
   std::cout << "Total processing time: "
-            << fpsCounter.getTotalProcessingTimeSec() << " seconds"
+            << fpsCounter.get_total_processing_time_sec() << " seconds"
             << std::endl;
 
   std::cout << "Processing complete." << std::endl;

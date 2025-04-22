@@ -16,8 +16,8 @@ VVEstimator::VVEstimator(const VVParams& params) : params_(params) {
   // 사용자 정의 파라미터 사용
 }
 
-VVResult VVEstimator::estimateVV(const std::vector<float>& hogHistogram,
-                                 const VVResult& previousResult) {
+VVResult VVEstimator::estimate_vv(const std::vector<float>& hogHistogram,
+                                  const VVResult& previousResult) {
   VVResult result;
 
   // 최대 3개의 피크 찾기
@@ -78,7 +78,7 @@ VVResult VVEstimator::estimateVV(const std::vector<float>& hogHistogram,
                  (1.0 - params_.smoothingFactor) * previousResult.angle;
 
   // 가속도 계산
-  result.updateAcceleration();
+  result.update_acceleration();
 
   // 결과 저장
   results_.push_back(result);
@@ -86,11 +86,11 @@ VVResult VVEstimator::estimateVV(const std::vector<float>& hogHistogram,
   return result;
 }
 
-const std::vector<VVResult>& VVEstimator::getAllResults() const {
+const std::vector<VVResult>& VVEstimator::get_all_results() const {
   return results_;
 }
 
-cv::Mat VVEstimator::createHistogramVisualization(
+cv::Mat VVEstimator::create_histogram_visualization(
     const std::vector<float>& hogHistogram, const VVResult& vvResult, int width,
     int height) const {
   // 히스토그램이 비어있는 경우 검사

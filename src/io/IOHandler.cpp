@@ -6,11 +6,11 @@
 #include <iostream>
 #include <sstream>
 
-#include <filesystem>  // C++17 파일 시스템 기능 추가
+#include <filesystem>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 
-#include "vvp/utils/Helpers.hpp"  // 추가 (getCurrentDateString 사용 위해)
+#include "vvp/utils/Helpers.hpp"  // 추가 (get_current_date_string 사용 위해)
 
 namespace vv {
 
@@ -24,10 +24,10 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
     }
   }
   // 현재 날짜 및 전체 타임스탬프 가져오기
-  std::string currentDate = utils::getCurrentDateString();  // "YYYYMMDD"
-  std::string currentTimestamp = getCurrentTimeStamp();     // "YYYYMMDD_HHMMSS"
+  std::string currentDate = utils::get_current_date_string();  // "YYYYMMDD"
+  std::string currentTimestamp = get_current_time_stamp();  // "YYYYMMDD_HHMMSS"
   // 타임스탬프에서 시간 부분(HHMMSS)만 추출
-  std::string timePart = extractTimePart(currentTimestamp);
+  std::string timePart = extract_time_part(currentTimestamp);
 
   // 날짜 기반 결과 디렉토리 경로 설정 (project root/results)
   std::filesystem::path baseResultDir =
@@ -37,7 +37,7 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
 
   // 날짜 기반 결과 하위 디렉토리 생성 (존재하지 않을 경우)
   // 날짜 기반 결과 디렉토리 생성
-  ensureDirectoryExists(dateResultDir);
+  ensure_directory_exists(dateResultDir);
   std::cout << "Results will be saved to directory: "
             << std::filesystem::absolute(dateResultDir).string() << std::endl;
 
@@ -78,7 +78,7 @@ IOHandler::~IOHandler() {
   cv::destroyAllWindows();
 }
 
-bool IOHandler::openVideoSource() {
+bool IOHandler::open_video_source() {
   if (config_.useCamera) {
     video_capture_.open(config_.cameraPort, cv::CAP_DSHOW);
   } else {
@@ -97,7 +97,7 @@ bool IOHandler::openVideoSource() {
   return true;
 }
 
-bool IOHandler::readNextFrame(cv::Mat& frame) {
+bool IOHandler::read_next_frame(cv::Mat& frame) {
   if (!video_capture_.isOpened()) {
     return false;
   }
@@ -105,7 +105,7 @@ bool IOHandler::readNextFrame(cv::Mat& frame) {
   return video_capture_.read(frame);
 }
 
-bool IOHandler::setupVideoWriter(int width, int height) {
+bool IOHandler::setup_video_writer(int width, int height) {
   if (!video_capture_.isOpened()) {
     return false;
   }
@@ -121,7 +121,7 @@ bool IOHandler::setupVideoWriter(int width, int height) {
   // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
   // 비디오 저장 디렉토리 생성
   std::filesystem::path videoPath(video_file_path_);
-  ensureDirectoryExists(videoPath.parent_path());
+  ensure_directory_exists(videoPath.parent_path());
 
   video_writer_.open(video_file_path_, fourcc, fps, cv::Size(width, height));
 
@@ -135,18 +135,18 @@ bool IOHandler::setupVideoWriter(int width, int height) {
   return true;
 }
 
-void IOHandler::writeFrame(const cv::Mat& frame) {
+void IOHandler::write_frame(const cv::Mat& frame) {
   if (video_writer_.isOpened()) {
     video_writer_.write(frame);
   }
 }
 
-int IOHandler::displayFrame(const cv::Mat& frame, int waitKey) {
+int IOHandler::display_frame(const cv::Mat& frame, int waitKey) {
   cv::imshow("Visual Vertical Estimation", frame);
   return cv::waitKey(waitKey);
 }
 
-bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
+bool IOHandler::save_results_to_csv(const std::vector<VVResult>& results) {
   if (results.empty()) {
     std::cerr << "Error: No results to save." << std::endl;
     return false;
@@ -155,7 +155,7 @@ bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
   // CSV 파일 열기 전에 디렉토리 존재 여부 재확인
   // CSV 저장 디렉토리 생성
   std::filesystem::path csvPath(csv_file_path_);
-  ensureDirectoryExists(csvPath.parent_path());
+  ensure_directory_exists(csvPath.parent_path());
 
   std::ofstream outFile(csv_file_path_);
   if (!outFile.is_open()) {
@@ -180,18 +180,18 @@ bool IOHandler::saveResultsToCSV(const std::vector<VVResult>& results) {
   return true;
 }
 
-cv::VideoCapture& IOHandler::getVideoCapture() {
+cv::VideoCapture& IOHandler::get_video_capture() {
   return video_capture_;
 }
 
-std::string IOHandler::generateOutputFilePath(
+std::string IOHandler::generate_output_file_path(
     const std::string& prefix, const std::string& extension) const {
   // 현재 날짜 기준 디렉토리와 시간을 포함한 파일 이름 생성
-  std::string currentDate = utils::getCurrentDateString();
+  std::string currentDate = utils::get_current_date_string();
   std::filesystem::path baseResultDir = "../results";
   std::filesystem::path dateResultDir =
       baseResultDir / currentDate;  // baseResultDir 객체에 / 연산자 사용
-  std::string timestamp = getCurrentTimeStamp();
+  std::string timestamp = get_current_time_stamp();
 
   // 타임스탬프에서 시간 부분 추출
   std::string timePart = "000000";  // 기본값
@@ -204,7 +204,7 @@ std::string IOHandler::generateOutputFilePath(
   return (dateResultDir / (prefix + "_" + timePart + extension)).string();
 }
 
-std::string IOHandler::getCurrentTimeStamp() const {
+std::string IOHandler::get_current_time_stamp() const {
   auto now = std::chrono::system_clock::now();
   std::time_t time = std::chrono::system_clock::to_time_t(now);
   std::stringstream ss;
@@ -219,7 +219,7 @@ std::string IOHandler::getCurrentTimeStamp() const {
 //------------------------------------------------------------------------------
 namespace vv {
 
-std::string IOHandler::extractTimePart(const std::string& timestamp) {
+std::string IOHandler::extract_time_part(const std::string& timestamp) {
   size_t pos = timestamp.find('_');
   if (pos != std::string::npos && pos + 1 < timestamp.size()) {
     return timestamp.substr(pos + 1);
@@ -227,7 +227,7 @@ std::string IOHandler::extractTimePart(const std::string& timestamp) {
   return "000000";
 }
 
-void IOHandler::ensureDirectoryExists(const std::filesystem::path& dir) {
+void IOHandler::ensure_directory_exists(const std::filesystem::path& dir) {
   try {
     std::filesystem::create_directories(dir);
   } catch (const std::exception& e) {

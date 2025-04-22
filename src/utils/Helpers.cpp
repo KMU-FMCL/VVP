@@ -12,14 +12,14 @@
 namespace vv {
 namespace utils {
 
-Config parseCommandLineArgs(int argc, char* argv[]) {
+Config parse_command_line_args(int argc, char* argv[]) {
   Config config;
 
   for (int i = 1; i < argc; i++) {
     std::string arg = argv[i];
 
     if (arg == "-h" || arg == "--help") {
-      printUsage();
+      print_usage();
       exit(0);
     } else if (arg == "-i" || arg == "--inputfile") {
       if (i + 1 < argc) {
@@ -50,7 +50,7 @@ Config parseCommandLineArgs(int argc, char* argv[]) {
   return config;
 }
 
-std::string formatCurrentTime(const std::string& format) {
+std::string format_current_time(const std::string& format) {
   auto now = std::chrono::system_clock::now();
   auto time = std::chrono::system_clock::to_time_t(now);
 
@@ -60,7 +60,7 @@ std::string formatCurrentTime(const std::string& format) {
   return ss.str();
 }
 
-std::string getCurrentDateString() {
+std::string get_current_date_string() {
   auto now = std::chrono::system_clock::now();
   auto time = std::chrono::system_clock::to_time_t(now);
 
@@ -71,7 +71,7 @@ std::string getCurrentDateString() {
   return ss.str();
 }
 
-void printUsage() {
+void print_usage() {
   std::cout
       << "Visual Vertical Estimator\n"
       << "-------------------------\n"
@@ -90,7 +90,7 @@ void printUsage() {
       << std::endl;
 }
 
-void printOpenCVInfo() {
+void print_opencv_info() {
   std::cout << "OpenCV Version: " << CV_VERSION << std::endl;
 
   // OpenCL 지원 확인
