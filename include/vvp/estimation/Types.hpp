@@ -13,51 +13,51 @@ const std::string kIsoTimeFormat = "%Y%m%d_%H%M%S";
 
 // 프로그램 설정 구조체
 struct Config {
-  bool useCamera = false;
-  int cameraPort = 0;
-  std::string inputFilePath = "./test.mp4";
+  bool use_camera = false;
+  int camera_port = 0;
+  std::string input_file_path = "./test.mp4";
   int scale = 2;
-  bool saveResults = true;
+  bool save_results = true;
 };
 
 // HOG 파라미터 구조체
 struct HOGParams {
-  int binCount = 180;
-  double thresholdValue = 0.25;
-  int blurKernelSize = 11;
-  double blurSigma = 3.0;
-  int erodeKernelSize = 3;
+  int bin_count = 180;
+  double threshold_value = 0.25;
+  int blur_kernel_size = 11;
+  double blur_sigma = 3.0;
+  int erode_kernel_size = 3;
 };
 
 // VVEstimator 파라미터 구조체
 struct VVParams {
-  int minAngle = 30;             // 관심 각도 최소 (도)
-  int maxAngle = 150;            // 관심 각도 최대 (도)
-  double smoothingFactor = 0.7;  // 스무딩 가중치 (0.0-1.0)
+  int min_angle = 30;             // 관심 각도 최소 (도)
+  int max_angle = 150;            // 관심 각도 최대 (도)
+  double smoothing_factor = 0.7;  // 스무딩 가중치 (0.0-1.0)
 };
 
 // VV 추정 결과 구조체
 struct VVResult {
-  double angle = 90.0;           // 수직 방향 각도 (도)
-  double angleRad = M_PI / 2.0;  // 수직 방향 각도 (라디안)
-  double accX = 0.0;             // X방향 가속도 (m/s^2)
-  double accY = 9.8;             // Y방향 가속도 (m/s^2)
+  double angle = 90.0;            // 수직 방향 각도 (도)
+  double angle_rad = M_PI / 2.0;  // 수직 방향 각도 (라디안)
+  double acc_x = 0.0;             // X방향 가속도 (m/s^2)
+  double acc_y = 9.8;             // Y방향 가속도 (m/s^2)
 
   // 각도에서 가속도 계산 메서드
   void update_acceleration() {
-    angleRad = angle * M_PI / 180.0;
-    accX = 9.8 * std::cos(angleRad);
-    accY = 9.8 * std::sin(angleRad);
+    angle_rad = angle * M_PI / 180.0;
+    acc_x = 9.8 * std::cos(angle_rad);
+    acc_y = 9.8 * std::sin(angle_rad);
   }
 };
 
 // HOG 계산 결과 구조체
 struct HOGResult {
-  cv::Mat gradientX;
-  cv::Mat gradientY;
+  cv::Mat gradient_x;
+  cv::Mat gradient_y;
   std::vector<float> histogram;
   cv::Mat magnitude;
-  cv::Mat magnitudeFiltered;
+  cv::Mat magnitude_filtered;
 };
 
 }  // namespace vv
