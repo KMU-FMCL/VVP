@@ -34,6 +34,12 @@ target_link_libraries(vv_estimator
     PRIVATE
         ${OpenCV_LIBS}
         ${YAMLCPP_LIB}
+        absl::strings
+        absl::str_format
+        absl::time
+        absl::span
+        absl::flat_hash_map
+        absl::flat_hash_set
 )
 
 # 컴파일 옵션 추가

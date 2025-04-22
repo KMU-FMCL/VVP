@@ -63,6 +63,16 @@ foreach(test_source ${TEST_SOURCES})
     # OpenCV 라이브러리 링크
     target_link_libraries(${test_name} PRIVATE ${OpenCV_LIBS})
     
+    # Abseil 라이브러리 링크
+    target_link_libraries(${test_name} PRIVATE
+        absl::strings
+        absl::str_format
+        absl::time
+        absl::span
+        absl::flat_hash_map
+        absl::flat_hash_set
+    )
+    
     # 테스트에 사용되는 헤더 파일 디렉토리 추가
     target_include_directories(${test_name} PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/../include

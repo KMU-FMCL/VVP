@@ -22,6 +22,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # YAML-CPP for configuration parsing (system package)
 find_package(yaml-cpp REQUIRED)
 
+# Abseil 라이브러리 추가
+include(FetchContent)
+FetchContent_Declare(
+  absl
+  GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
+  GIT_TAG 20230125.3
+)
+# Abseil 빌드 옵션 설정 - 단일 라이브러리로 빌드
+set(ABSL_PROPAGATE_CXX_STD ON)
+set(ABSL_ENABLE_INSTALL ON)
+FetchContent_MakeAvailable(absl)
+
 # 하위 디렉토리 추가
 add_subdirectory(src)
 
