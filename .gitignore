@@ -2,22 +2,18 @@
 /build/
 /install/
 
+# Clang
+/.cache/
+
 # IDE
 /.vscode/
 /.vs/
 /.idea/
 /.cursor/
 .cursorignore
-*.suo
-*.user
-*.sln
-*.vcxproj
-*.vcxproj.filters
 
 # Result
 /results/
-*.csv
-*.json
 
 # System
 .DS_Store

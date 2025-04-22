@@ -100,4 +100,3 @@ FormatStyle: 'file'
 HeaderFilterRegex: '^(src|include|tests)/' # Only check project headers/sources
 WarningsAsErrors: '*' # Treat all warnings as errors
 UseColor: true
-AnalyzeTemporaryDtors: true 
