@@ -33,26 +33,26 @@ class ImageProcessorTest : public ::testing::Test {
 // 이미지 크기 조정 테스트
 TEST_F(ImageProcessorTest, ResizeImage) {
   // 2배 축소
-  cv::Mat resized = processor->resizeImage(testImage, 2);
+  cv::Mat resized = processor->resize_image(testImage, 2);
   EXPECT_EQ(resized.size(), cv::Size(50, 50));
 
   // 원본 크기 유지
-  cv::Mat resized2 = processor->resizeImage(testImage, 1);
+  cv::Mat resized2 = processor->resize_image(testImage, 1);
   EXPECT_EQ(resized2.size(), testImage.size());
 
   // 잘못된 값 처리
-  cv::Mat resized3 = processor->resizeImage(testImage, -1);
+  cv::Mat resized3 = processor->resize_image(testImage, -1);
   EXPECT_EQ(resized3.size(), testImage.size());
 }
 
 // 이미지 회전 테스트
 TEST_F(ImageProcessorTest, RotateImage) {
   // 90도 회전
-  cv::Mat rotated = processor->rotateImage(testImage, 90);
+  cv::Mat rotated = processor->rotate_image(testImage, 90);
   EXPECT_EQ(rotated.size(), testImage.size());
 
   // 0도 회전 (원본과 동일)
-  cv::Mat rotated2 = processor->rotateImage(testImage, 0);
+  cv::Mat rotated2 = processor->rotate_image(testImage, 0);
 
   // 픽셀 값 비교 (완전히 동일하지는 않을 수 있음)
   double diff = cv::norm(rotated2, testImage, cv::NORM_L1);
@@ -62,7 +62,7 @@ TEST_F(ImageProcessorTest, RotateImage) {
 
 // HOG 계산 테스트
 TEST_F(ImageProcessorTest, ComputeHOG) {
-  vv::HOGResult hogResult = processor->computeHOG(testImage);
+  vv::HOGResult hogResult = processor->compute_hog(testImage);
 
   // 히스토그램 검증
   EXPECT_EQ(hogResult.histogram.size(), 180);
