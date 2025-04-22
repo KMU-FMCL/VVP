@@ -12,52 +12,52 @@ ConfigAll ConfigLoader::load(const std::string& filepath) {
     // I/O settings
     if (root["io"]) {
       auto io = root["io"];
-      if (io["useCamera"]) {
-        cfg.io.use_camera = io["useCamera"].as<bool>();
+      if (io["use_camera"]) {
+        cfg.io.use_camera = io["use_camera"].as<bool>();
       }
-      if (io["cameraPort"]) {
-        cfg.io.camera_port = io["cameraPort"].as<int>();
+      if (io["camera_port"]) {
+        cfg.io.camera_port = io["camera_port"].as<int>();
       }
-      if (io["inputFilePath"]) {
-        cfg.io.input_file_path = io["inputFilePath"].as<std::string>();
+      if (io["input_file_path"]) {
+        cfg.io.input_file_path = io["input_file_path"].as<std::string>();
       }
       if (io["scale"]) {
         cfg.io.scale = io["scale"].as<int>();
       }
-      if (io["saveResults"]) {
-        cfg.io.save_results = io["saveResults"].as<bool>();
+      if (io["save_results"]) {
+        cfg.io.save_results = io["save_results"].as<bool>();
       }
     }
     // HOG parameters
     if (root["hog"]) {
       auto hog = root["hog"];
-      if (hog["binCount"]) {
-        cfg.hog.bin_count = hog["binCount"].as<int>();
+      if (hog["bin_count"]) {
+        cfg.hog.bin_count = hog["bin_count"].as<int>();
       }
-      if (hog["thresholdValue"]) {
-        cfg.hog.threshold_value = hog["thresholdValue"].as<double>();
+      if (hog["threshold_value"]) {
+        cfg.hog.threshold_value = hog["threshold_value"].as<double>();
       }
-      if (hog["blurKernelSize"]) {
-        cfg.hog.blur_kernel_size = hog["blurKernelSize"].as<int>();
+      if (hog["blur_kernel_size"]) {
+        cfg.hog.blur_kernel_size = hog["blur_kernel_size"].as<int>();
       }
-      if (hog["blurSigma"]) {
-        cfg.hog.blur_sigma = hog["blurSigma"].as<double>();
+      if (hog["blur_sigma"]) {
+        cfg.hog.blur_sigma = hog["blur_sigma"].as<double>();
       }
-      if (hog["erodeKernelSize"]) {
-        cfg.hog.erode_kernel_size = hog["erodeKernelSize"].as<int>();
+      if (hog["erode_kernel_size"]) {
+        cfg.hog.erode_kernel_size = hog["erode_kernel_size"].as<int>();
       }
     }
     // Visual Vertical estimator parameters
-    if (root["vvEstimator"]) {
-      auto vv = root["vvEstimator"];
-      if (vv["minAngle"]) {
-        cfg.vv.min_angle = vv["minAngle"].as<int>();
+    if (root["vv_estimator"]) {
+      auto vv = root["vv_estimator"];
+      if (vv["min_angle"]) {
+        cfg.vv.min_angle = vv["min_angle"].as<int>();
       }
-      if (vv["maxAngle"]) {
-        cfg.vv.max_angle = vv["maxAngle"].as<int>();
+      if (vv["max_angle"]) {
+        cfg.vv.max_angle = vv["max_angle"].as<int>();
       }
-      if (vv["smoothingFactor"]) {
-        cfg.vv.smoothing_factor = vv["smoothingFactor"].as<double>();
+      if (vv["smoothing_factor"]) {
+        cfg.vv.smoothing_factor = vv["smoothing_factor"].as<double>();
       }
     }
   } catch (const std::exception& e) {
