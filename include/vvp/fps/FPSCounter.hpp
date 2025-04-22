@@ -18,36 +18,36 @@ class FPSCounter {
   /**
    * @brief 프레임 처리 시작 시 호출
    */
-  void tickStart();
+  void tick_start();
 
   /**
    * @brief 프레임 처리 종료 시 호출하여 FPS 계산
    */
-  void tickEnd();
+  void tick_end();
 
   /**
    * @brief 가장 최근에 계산된 FPS 반환
    * @return 현재 프레임의 FPS
    */
-  double getFPS() const;
+  double get_fps() const;
 
   /**
    * @brief 전체 실행 시간 동안의 평균 FPS 계산 및 반환
    * @return 평균 FPS
    */
-  double getAverageFPS() const;
+  double get_average_fps() const;
 
   /**
    * @brief 처리된 총 프레임 수 반환
    * @return 총 프레임 수
    */
-  long long getFrameCount() const;
+  long long get_frame_count() const;
 
   /**
    * @brief 총 처리 시간(초) 반환
    * @return 총 처리 시간
    */
-  double getTotalProcessingTimeSec() const;
+  double get_total_processing_time_sec() const;
 
  private:
   std::chrono::high_resolution_clock::time_point frame_start_time_;

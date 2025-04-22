@@ -44,7 +44,7 @@ struct VVResult {
   double accY = 9.8;             // Y방향 가속도 (m/s^2)
 
   // 각도에서 가속도 계산 메서드
-  void updateAcceleration() {
+  void update_acceleration() {
     angleRad = angle * M_PI / 180.0;
     accX = 9.8 * std::cos(angleRad);
     accY = 9.8 * std::sin(angleRad);

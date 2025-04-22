@@ -33,14 +33,14 @@ class VVEstimator {
    * @param previousResult 이전 프레임의 VV 결과 (스무딩을 위해 사용)
    * @return 추정된 VV 결과
    */
-  VVResult estimateVV(const std::vector<float>& hogHistogram,
-                      const VVResult& previousResult);
+  VVResult estimate_vv(const std::vector<float>& hogHistogram,
+                       const VVResult& previousResult);
 
   /**
    * @brief 모든 VV 결과 얻기
    * @return 지금까지 계산된 모든 VV 결과 벡터
    */
-  const std::vector<VVResult>& getAllResults() const;
+  const std::vector<VVResult>& get_all_results() const;
 
   /**
    * @brief 히스토그램 시각화 이미지 생성
@@ -50,9 +50,9 @@ class VVEstimator {
    * @param height 이미지 높이
    * @return 히스토그램 시각화 이미지
    */
-  cv::Mat createHistogramVisualization(const std::vector<float>& hogHistogram,
-                                       const VVResult& vvResult, int width,
-                                       int height) const;
+  cv::Mat create_histogram_visualization(const std::vector<float>& hogHistogram,
+                                         const VVResult& vvResult, int width,
+                                         int height) const;
 
  private:
   std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
