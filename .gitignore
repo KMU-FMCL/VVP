@@ -8,7 +8,6 @@
 /.idea/
 /.cursor/
 .cursorignore
-/cmake-build-*/
 *.suo
 *.user
 *.sln

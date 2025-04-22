@@ -1,19 +1,19 @@
-#include "absl/status/status.h"
-#include "absl/status/statusor.h"
-#include "absl/strings/str_cat.h"
-
 #include <iostream>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "vvp/estimation/VVEstimator.hpp"
-#include "vvp/fps/FPSCounter.hpp"
-#include "vvp/io/IOHandler.hpp"
-#include "vvp/processing/ImageProcessor.hpp"
-#include "vvp/utils/ConfigLoader.hpp"  // YAML config loader
-#include "vvp/utils/Helpers.hpp"       // print_opencv_info
+#include "vvp/estimation/VVEstimator.h"
+#include "vvp/fps/FPSCounter.h"
+#include "vvp/io/IOHandler.h"
+#include "vvp/processing/ImageProcessor.h"
+#include "vvp/utils/ConfigLoader.h"  // YAML config loader
+#include "vvp/utils/Helpers.h"       // print_opencv_info
+
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
+#include "absl/strings/str_cat.h"
 
 int main(int argc, char* argv[]) {
   // OpenCV 정보 출력
@@ -109,7 +109,11 @@ int main(int argc, char* argv[]) {
 
     // 시각화 이미지 생성
     cv::Mat visualization_result = image_processor.create_visualization(
-        frame, calibrated_image, hog_result, vv_result, histogram_image,
+        frame,
+        calibrated_image,
+        hog_result,
+        vv_result,
+        histogram_image,
         fps_counter.get_fps()  // FPS 정보 전달
     );
 

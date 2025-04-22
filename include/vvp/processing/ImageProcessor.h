@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "vvp/estimation/Types.hpp"
+#include "vvp/estimation/Types.h"
 
 namespace vv {
 

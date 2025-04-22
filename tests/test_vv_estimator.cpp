@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
+#include "vvp/estimation/VVEstimator.h"
+#include "vvp/utils/ConfigLoader.h"
 
-#include "vvp/estimation/VVEstimator.hpp"
-#include "vvp/utils/ConfigLoader.hpp"
+#include <gtest/gtest.h>
 
 // VVEstimator 클래스 테스트
 class VVEstimatorTest : public ::testing::Test {

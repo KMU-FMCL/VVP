@@ -1,8 +1,9 @@
-#include <gtest/gtest.h>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "vvp/processing/ImageProcessor.hpp"
+#include "vvp/processing/ImageProcessor.h"
+
+#include <gtest/gtest.h>
 
 // ImageProcessor 클래스 테스트
 class ImageProcessorTest : public ::testing::Test {
@@ -22,8 +23,11 @@ class ImageProcessorTest : public ::testing::Test {
     }
 
     // 세로 선 추가 (90도 방향 강조)
-    cv::line(testImage, cv::Point(50, 0), cv::Point(50, 100),
-             cv::Scalar(255, 255, 255), 2);
+    cv::line(testImage,
+             cv::Point(50, 0),
+             cv::Point(50, 100),
+             cv::Scalar(255, 255, 255),
+             2);
   }
 
   std::unique_ptr<vv::ImageProcessor> processor;

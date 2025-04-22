@@ -1,11 +1,11 @@
 #ifndef VVP_UTILS_CONFIGLOADER_H_
 #define VVP_UTILS_CONFIGLOADER_H_
 
-#include "absl/status/statusor.h"
-
 #include <string>
 
-#include "vvp/estimation/Types.hpp"
+#include "vvp/estimation/Types.h"
+
+#include "absl/status/statusor.h"
 
 namespace vv {
 namespace utils {

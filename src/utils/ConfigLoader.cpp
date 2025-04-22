@@ -1,10 +1,10 @@
-#include "vvp/utils/ConfigLoader.hpp"
+#include "vvp/utils/ConfigLoader.h"
+
+#include <yaml-cpp/yaml.h>
 
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
-
-#include <yaml-cpp/yaml.h>
 
 namespace vv {
 namespace utils {

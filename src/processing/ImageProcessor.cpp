@@ -1,7 +1,4 @@
-#include "vvp/processing/ImageProcessor.hpp"
-
-#include "absl/strings/str_cat.h"
-#include "absl/strings/str_format.h"
+#include "vvp/processing/ImageProcessor.h"
 
 #include <iomanip>
 #include <iostream>
@@ -9,6 +6,9 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
 
 namespace vv {
 
@@ -27,7 +27,8 @@ HOGResult ImageProcessor::compute_hog(const cv::Mat& image) {
   cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 
   // 가우시안 블러 적용
-  cv::GaussianBlur(gray, gray,
+  cv::GaussianBlur(gray,
+                   gray,
                    cv::Size(params_.blur_kernel_size, params_.blur_kernel_size),
                    params_.blur_sigma);
 
@@ -103,8 +104,12 @@ cv::Mat ImageProcessor::resize_image(const cv::Mat& image, int scale) const {
   }
 
   cv::Mat resized;
-  cv::resize(image, resized, cv::Size(image.cols / scale, image.rows / scale),
-             0, 0, cv::INTER_LINEAR);
+  cv::resize(image,
+             resized,
+             cv::Size(image.cols / scale, image.rows / scale),
+             0,
+             0,
+             cv::INTER_LINEAR);
 
   return resized;
 }
@@ -130,9 +135,12 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
 
   // 보정된 이미지에 수평선 추가
   cv::Mat calibrated_with_line = calibrated_image.clone();
-  cv::line(calibrated_with_line, cv::Point(0, calibrated_with_line.rows / 2),
+  cv::line(calibrated_with_line,
+           cv::Point(0, calibrated_with_line.rows / 2),
            cv::Point(calibrated_with_line.cols, calibrated_with_line.rows / 2),
-           cv::Scalar(0, 0, 0), kLineThickness, cv::LINE_AA);
+           cv::Scalar(0, 0, 0),
+           kLineThickness,
+           cv::LINE_AA);
 
   // 상단 이미지 가로로 합치기 (원본 + 보정)
   cv::Mat top_row;
@@ -159,8 +167,8 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
   cv::Mat hist_image = histogram_image;
   if (hist_image.empty()) {
     // 빈 히스토그램 이미지 생성
-    hist_image = cv::Mat(top_row.rows / 2, top_row.cols, CV_8UC3,
-                         cv::Scalar(255, 255, 255));
+    hist_image = cv::Mat(
+        top_row.rows / 2, top_row.cols, CV_8UC3, cv::Scalar(255, 255, 255));
   } else if (hist_image.cols != top_row.cols) {
     // 너비 맞추기
     cv::resize(hist_image, hist_image, cv::Size(top_row.cols, hist_image.rows));
@@ -177,9 +185,12 @@ cv::Mat ImageProcessor::create_visualization(const cv::Mat& input_image,
 
   // FPS 정보 추가
   if (fps > 0.0f) {
-    cv::putText(result, absl::StrFormat("FPS: %.1f", fps),
+    cv::putText(result,
+                absl::StrFormat("FPS: %.1f", fps),
                 cv::Point(kFpsTextPositionX, kFpsTextPositionY),
-                cv::FONT_HERSHEY_SIMPLEX, kFpsTextScale, cv::Scalar(0, 255, 0),
+                cv::FONT_HERSHEY_SIMPLEX,
+                kFpsTextScale,
+                cv::Scalar(0, 255, 0),
                 kLineThickness);
   }
 
@@ -190,19 +201,29 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
                                            const VVResult& vv_result) const {
   try {
     // VV 각도 텍스트 추가
-    cv::putText(
-        image, absl::StrCat(" VV_dig=", static_cast<int>(vv_result.angle)),
-        cv::Point(kVvTextPositionX, kVvTextPositionY), cv::FONT_HERSHEY_PLAIN,
-        kVvTextScale, cv::Scalar(0, 255, 0), kLineThickness, cv::LINE_AA);
+    cv::putText(image,
+                absl::StrCat(" VV_dig=", static_cast<int>(vv_result.angle)),
+                cv::Point(kVvTextPositionX, kVvTextPositionY),
+                cv::FONT_HERSHEY_PLAIN,
+                kVvTextScale,
+                cv::Scalar(0, 255, 0),
+                kLineThickness,
+                cv::LINE_AA);
 
     // 수평선과 수직선 추가
-    cv::line(image, cv::Point(0, image.rows / 2),
-             cv::Point(image.cols, image.rows / 2), cv::Scalar(0, 0, 0),
-             kLineThickness, cv::LINE_4);
+    cv::line(image,
+             cv::Point(0, image.rows / 2),
+             cv::Point(image.cols, image.rows / 2),
+             cv::Scalar(0, 0, 0),
+             kLineThickness,
+             cv::LINE_4);
 
-    cv::line(image, cv::Point(image.cols / 2, image.rows / 2),
-             cv::Point(image.cols / 2, image.rows), cv::Scalar(0, 0, 0),
-             kLineThickness, cv::LINE_4);
+    cv::line(image,
+             cv::Point(image.cols / 2, image.rows / 2),
+             cv::Point(image.cols / 2, image.rows),
+             cv::Scalar(0, 0, 0),
+             kLineThickness,
+             cv::LINE_4);
 
     // VV 선 그리기
     double radians = (90 - vv_result.angle) * CV_PI / 180.0;
@@ -214,8 +235,8 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
     cv::Point end(static_cast<int>(center.x + dx),
                   static_cast<int>(center.y - dy));
 
-    cv::line(image, center, end, cv::Scalar(0, 255, 0), kLineThickness,
-             cv::LINE_AA);
+    cv::line(
+        image, center, end, cv::Scalar(0, 255, 0), kLineThickness, cv::LINE_AA);
 
     // 가속도 벡터 그리기 (acc_x, acc_y)
     double acc_scale_factor =
@@ -223,8 +244,12 @@ cv::Mat ImageProcessor::draw_vv_indicators(cv::Mat image,
     cv::Point acc_vec(
         static_cast<int>(center.x + vv_result.acc_x * acc_scale_factor),
         static_cast<int>(center.y - vv_result.acc_y * acc_scale_factor));
-    cv::arrowedLine(image, center, acc_vec, cv::Scalar(0, 0, 255),
-                    kLineThickness, cv::LINE_AA);
+    cv::arrowedLine(image,
+                    center,
+                    acc_vec,
+                    cv::Scalar(0, 0, 255),
+                    kLineThickness,
+                    cv::LINE_AA);
 
     return image;
   } catch (const std::exception& e) {

@@ -1,8 +1,6 @@
 ---
-# Base on Google Style
+# Base on Google Style and project instructions (@instructions.mdc)
 BasedOnStyle: Google
-
-# Force all styles to confirm to the style guide
 Language: Cpp
 Standard: c++17
 
@@ -21,68 +19,77 @@ AlignAfterOpenBracket: Align
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 
-# Include sorting
+# Include sorting (Aligned with @instructions.mdc)
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  # Related header goes first
-  - Regex:           '^"(.*\.h)"'
-    Priority:        1
-  # C system headers
-  - Regex:           '^<sys/(.*\.h)>|^<(linux/.*\.h)>|^<(arpa/.*\.h)>|^<(netinet/.*\.h)>|^<(stdlib\.h|stdio\.h|unistd\.h|string\.h)>'
+  # 1. Related Header (specific path for .cc files, less relevant in .h/.hpp)
+  # This regex is tricky. Let's assume project headers cover this for now,
+  # relying on clang-format's default behavior for the very first #include.
+  # A more complex setup might be needed if issues persist.
+  # We prioritize project headers generally here.
+
+  # 2. C system headers
+  - Regex:           '^<sys/.*\.h>|^<unistd\.h>|^<linux/.*\.h>|^<arpa/.*\.h>|^<netinet/.*\.h>'
     Priority:        2
-  # C++ standard library headers
-  - Regex:           '^<(algorithm|array|atomic|bitset|chrono|codecvt|complex|condition_variable|deque|exception|forward_list|fstream|functional|future|initializer_list|iomanip|ios|iosfwd|iostream|istream|iterator|limits|list|locale|map|memory|mutex|new|numeric|optional|ostream|queue|random|regex|set|sstream|stack|stdexcept|streambuf|string|string_view|system_error|thread|tuple|type_traits|typeinfo|unordered_map|unordered_set|utility|vector)>'
+  # 3. C++ standard library headers (including <c...> headers)
+  - Regex:           '^<(c(assert|complex|ctype|errno|fenv|float|inttypes|iso646|limits|locale|math|setjmp|signal|stdalign|stdarg|stdatomic|stdbool|stddef|stdint|stdio|stdlib|stdnoreturn|string|tgmath|threads|time|uchar|wchar|wctype)|algorithm|array|atomic|bitset|chrono|codecvt|complex|condition_variable|deque|exception|execution|filesystem|forward_list|fstream|functional|future|initializer_list|iomanip|ios|iosfwd|iostream|istream|iterator|limits|list|locale|map|memory|mutex|new|numeric|optional|ostream|queue|random|ratio|regex|scoped_allocator|set|shared_mutex|sstream|stack|stdexcept|streambuf|string|string_view|system_error|thread|tuple|type_traits|typeindex|typeinfo|unordered_map|unordered_set|utility|valarray|variant|vector)>'
     Priority:        3
-  # Abseil headers
+  # 4. Abseil headers
   - Regex:           '^<absl/'
     Priority:        4
-  # Other library headers
-  - Regex:           '^<'
+  # 5. Other library headers (e.g., OpenCV, yaml-cpp)
+  - Regex:           '^<opencv2/|^<yaml-cpp/'
     Priority:        5
-  # Project headers
-  - Regex:           '^"'
+  # 6. Project headers
+  - Regex:           '^"vvp/'
     Priority:        6
+  # Catch-all for remaining quoted includes (should ideally match #1 or #6)
+  - Regex:           '^"'
+    Priority:        7 # Lowest priority for quoted includes if not matched above
+  # Catch-all for remaining angle-bracket includes
+  - Regex:           '^<'
+    Priority:        8 # Lowest priority for angle includes if not matched above
 
-# Other formatting options
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-AlignOperands: true
-AllowShortBlocksOnASingleLine: Empty
+# Other formatting options (aligning with Google Style)
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignOperands: Align # Align operators, etc.
+AllowShortBlocksOnASingleLine: Never # Always use braces on new lines
 AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: None # Disallow short functions on one line
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakBeforeMultilineStrings: false # Prefer not breaking before multiline strings
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments: true
-BinPackParameters: true
-BreakBeforeBinaryOperators: None
+BinPackArguments: false # Prefer not bin packing arguments
+BinPackParameters: false # Prefer not bin packing parameters
+BreakBeforeBinaryOperators: None # Break after binary operators
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 CompactNamespaces: false
-FixNamespaceComments: true
+FixNamespaceComments: false # Disabled as per Google Style
 
 # Pointer alignment
 PointerAlignment: Left
 DerivePointerAlignment: false
 
 # Space management
-SpaceAfterCStyleCast: false
+SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: true
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: false
+SpaceBeforeCpp11BracedList: true # Add space before braced list
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
-SpaceBeforeParens: ControlStatements
+SpaceBeforeParens: ControlStatements # Only before control statement parens
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
-SpacesInCStyleCastParentheses: false
-SpacesInContainerLiterals: false
+SpacesInCStyleCastParentheses: true
+SpacesInContainerLiterals: true # Add spaces in {}
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 

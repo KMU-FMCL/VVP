@@ -1,12 +1,12 @@
 #ifndef VVP_ESTIMATION_TYPES_H_
 #define VVP_ESTIMATION_TYPES_H_
 
-#include "absl/strings/string_view.h"
-
 #include <string>
 #include <vector>
 
 #include <opencv2/core.hpp>
+
+#include "absl/strings/string_view.h"
 
 namespace vv {
 

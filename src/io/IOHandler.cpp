@@ -1,19 +1,19 @@
-#include "vvp/io/IOHandler.hpp"
+#include "vvp/io/IOHandler.h"
+
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+
+#include "vvp/utils/Helpers.h"  // 추가 (get_current_date_string 사용 위해)
 
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
-
-#include <fstream>
-#include <iostream>
-
-#include <filesystem>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-
-#include "vvp/utils/Helpers.hpp"  // 추가 (get_current_date_string 사용 위해)
 
 namespace vv {
 
@@ -185,8 +185,11 @@ absl::Status IOHandler::save_results_to_csv(
 
   // 데이터 작성
   for (const auto& result : results) {
-    out_file << absl::StrFormat("%.6f,%.6f,%.6f,%.2f", result.acc_x,
-                                result.acc_y, result.angle_rad, result.angle)
+    out_file << absl::StrFormat("%.6f,%.6f,%.6f,%.2f",
+                                result.acc_x,
+                                result.acc_y,
+                                result.angle_rad,
+                                result.angle)
              << std::endl;
   }
 

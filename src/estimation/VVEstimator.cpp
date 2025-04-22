@@ -1,12 +1,12 @@
-#include "vvp/estimation/VVEstimator.hpp"
-
-#include "absl/strings/str_format.h"
+#include "vvp/estimation/VVEstimator.h"
 
 #include <algorithm>
 #include <numeric>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+
+#include "absl/strings/str_format.h"
 
 namespace vv {
 
@@ -44,7 +44,8 @@ VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
       best_indices.begin(),
       best_indices.begin() +
           std::min(kTopPeakCount, static_cast<int>(best_indices.size())),
-      best_indices.end(), compare_func);
+      best_indices.end(),
+      compare_func);
 
   // 상위 3개 인덱스만 사용
   best_indices.resize(
@@ -95,8 +96,10 @@ const std::vector<VVResult>& VVEstimator::get_all_results() const {
 }
 
 cv::Mat VVEstimator::create_histogram_visualization(
-    const std::vector<float>& hog_histogram, const VVResult& vv_result,
-    int width, int height) const {
+    const std::vector<float>& hog_histogram,
+    const VVResult& vv_result,
+    int width,
+    int height) const {
   // 히스토그램이 비어있는 경우 검사
   if (hog_histogram.empty()) {
     return cv::Mat(height, width, CV_8UC3, cv::Scalar(255, 255, 255));
@@ -129,38 +132,60 @@ cv::Mat VVEstimator::create_histogram_visualization(
     // X축 반전 (180 -> 0)
     int x = width - static_cast<int>(i) * bar_width - bar_width;
 
-    cv::rectangle(hist_image, cv::Point(x, height - bar_height),
-                  cv::Point(x + bar_width, height), cv::Scalar(100, 100, 100),
+    cv::rectangle(hist_image,
+                  cv::Point(x, height - bar_height),
+                  cv::Point(x + bar_width, height),
+                  cv::Scalar(100, 100, 100),
                   cv::FILLED);
   }
 
   // VV 각도 표시
   int vv_x =
       width - static_cast<int>(vv_result.angle) * bar_width - bar_width / 2;
-  cv::line(hist_image, cv::Point(vv_x, 0), cv::Point(vv_x, height),
-           cv::Scalar(0, 255, 0), kThickLineWidth, cv::LINE_AA);
+  cv::line(hist_image,
+           cv::Point(vv_x, 0),
+           cv::Point(vv_x, height),
+           cv::Scalar(0, 255, 0),
+           kThickLineWidth,
+           cv::LINE_AA);
 
   // 경계선 표시 (min_angle, max_angle)
   int x_min = width - params_.min_angle * bar_width - bar_width / 2;
   int x_max = width - params_.max_angle * bar_width - bar_width / 2;
 
-  cv::line(hist_image, cv::Point(x_min, 0), cv::Point(x_min, height),
-           cv::Scalar(0, 0, 0), kThinLineWidth, cv::LINE_AA);
-  cv::line(hist_image, cv::Point(x_max, 0), cv::Point(x_max, height),
-           cv::Scalar(0, 0, 0), kThinLineWidth, cv::LINE_AA);
+  cv::line(hist_image,
+           cv::Point(x_min, 0),
+           cv::Point(x_min, height),
+           cv::Scalar(0, 0, 0),
+           kThinLineWidth,
+           cv::LINE_AA);
+  cv::line(hist_image,
+           cv::Point(x_max, 0),
+           cv::Point(x_max, height),
+           cv::Scalar(0, 0, 0),
+           kThinLineWidth,
+           cv::LINE_AA);
 
   // X축 눈금 추가
   for (int angle = 0; angle <= 180; angle += kTickStep) {
     int x = width - angle * bar_width - bar_width / 2;
 
     // 눈금 선
-    cv::line(hist_image, cv::Point(x, height - 5), cv::Point(x, height),
-             cv::Scalar(0, 0, 0), kThinLineWidth, cv::LINE_AA);
+    cv::line(hist_image,
+             cv::Point(x, height - 5),
+             cv::Point(x, height),
+             cv::Scalar(0, 0, 0),
+             kThinLineWidth,
+             cv::LINE_AA);
 
     // 눈금 레이블
-    cv::putText(hist_image, absl::StrFormat("%d", angle),
-                cv::Point(x - 10, height - 10), cv::FONT_HERSHEY_SIMPLEX,
-                kLabelFontScale, cv::Scalar(0, 0, 0), kThinLineWidth,
+    cv::putText(hist_image,
+                absl::StrFormat("%d", angle),
+                cv::Point(x - 10, height - 10),
+                cv::FONT_HERSHEY_SIMPLEX,
+                kLabelFontScale,
+                cv::Scalar(0, 0, 0),
+                kThinLineWidth,
                 cv::LINE_AA);
   }
 

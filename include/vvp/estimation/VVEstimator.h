@@ -5,7 +5,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "vvp/estimation/Types.hpp"
+#include "vvp/estimation/Types.h"
 
 namespace vv {
 
@@ -51,7 +51,8 @@ class VVEstimator {
    * @return 히스토그램 시각화 이미지
    */
   cv::Mat create_histogram_visualization(const std::vector<float>& hogHistogram,
-                                         const VVResult& vvResult, int width,
+                                         const VVResult& vvResult,
+                                         int width,
                                          int height) const;
 
  private:

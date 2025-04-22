@@ -1,17 +1,15 @@
 #ifndef VVP_UTILS_HELPERS_H_
 #define VVP_UTILS_HELPERS_H_
 
-#include "absl/strings/string_view.h"
-#include "absl/time/time.h"
-
 #include <algorithm>
-#include <chrono>
+#include <ctime>
 #include <numeric>
 #include <string>
 
-#include <ctime>
+#include "vvp/estimation/Types.h"
 
-#include "vvp/estimation/Types.hpp"
+#include "absl/strings/string_view.h"
+#include "absl/time/time.h"
 
 namespace vv {
 namespace utils {
@@ -66,7 +64,9 @@ int argmax(const std::vector<T>& vec, int startIdx, int endIdx);
  * @return 상위 N개 인덱스 배열
  */
 template <typename T>
-std::vector<int> argmax_n(const std::vector<T>& vec, int n, int startIdx,
+std::vector<int> argmax_n(const std::vector<T>& vec,
+                          int n,
+                          int startIdx,
                           int endIdx);
 
 }  // namespace utils
@@ -80,13 +80,16 @@ int vv::utils::argmax(const std::vector<T>& vec, int startIdx, int endIdx) {
     return -1;
   }
 
-  return std::distance(vec.begin(), std::max_element(vec.begin() + startIdx,
-                                                     vec.begin() + endIdx));
+  return std::distance(
+      vec.begin(),
+      std::max_element(vec.begin() + startIdx, vec.begin() + endIdx));
 }
 
 template <typename T>
-std::vector<int> vv::utils::argmax_n(const std::vector<T>& vec, int n,
-                                     int startIdx, int endIdx) {
+std::vector<int> vv::utils::argmax_n(const std::vector<T>& vec,
+                                     int n,
+                                     int startIdx,
+                                     int endIdx) {
   if (vec.empty() || startIdx < 0 || endIdx > static_cast<int>(vec.size()) ||
       startIdx >= endIdx || n <= 0) {
     return {};
@@ -98,7 +101,8 @@ std::vector<int> vv::utils::argmax_n(const std::vector<T>& vec, int n,
   std::partial_sort(
       indices.begin(),
       indices.begin() + std::min(n, static_cast<int>(indices.size())),
-      indices.end(), [&vec](int i1, int i2) { return vec[i1] > vec[i2]; });
+      indices.end(),
+      [&vec](int i1, int i2) { return vec[i1] > vec[i2]; });
 
   indices.resize(std::min(n, static_cast<int>(indices.size())));
   return indices;

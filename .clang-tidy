@@ -4,22 +4,55 @@
 # Inherit from Google's configuration for most settings
 Checks: >
   -*,
-  bugprone-*,
   google-*,
-  misc-*,
-  modernize-*,
+  bugprone-*,
   performance-*,
-  portability-*,
+  modernize-*,
   readability-*,
-  -google-readability-namespace-comments,
-  -google-runtime-int,
-  -google-runtime-references,
-  -misc-non-private-member-variables-in-classes,
-  -readability-magic-numbers,
-  -readability-identifier-length,
-  -modernize-use-trailing-return-type,
-  -modernize-avoid-c-arrays,
-  -modernize-use-auto,
+  portability-*,
+  cppcoreguidelines-*,
+
+  # Customizations based on @instructions.mdc:
+  # Naming conventions
+  -readability-identifier-naming, # Disable generic one, use specific below
+
+  # Abseil usage encouragement (enable specific checks)
+  modernize-use-absl-*,           # Enable relevant Abseil modernization checks
+
+  # Prohibit exceptions (if specific checks exist, enable them)
+  # Example: -google-runtime-error, performance-no-exceptions, etc.
+  # Note: clang-tidy might not have perfect exception checks, rely on code review too.
+  -misc-throw-by-value-catch-by-reference, # Often related to exceptions
+
+  # Style adjustments
+  -google-build-using-namespace, # Already disallowed in headers by instructions
+  -google-readability-namespace-comments, # Disable namespace end comments
+  -google-runtime-int,          # Allow built-in int types where appropriate
+  -google-runtime-references,   # Allow non-const references if needed
+  -cppcoreguidelines-owning-memory, # May conflict with some patterns
+  -modernize-use-trailing-return-type, # Google style prefers leading return type
+  -modernize-use-auto,          # Use auto judiciously per instructions
+  -readability-magic-numbers,   # Use constants instead (kConstantName)
+  -readability-braces-around-statements, # Handled by clang-format
+
+  # Enable specific naming checks aligned with Google Style
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.PrivateMemberSuffix: _
+  readability-identifier-naming.ProtectedMemberSuffix: _
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.EnumConstantPrefix: k
+  readability-identifier-naming.GlobalConstantCase: CamelCase
+  readability-identifier-naming.GlobalConstantPrefix: k
+  readability-identifier-naming.StaticConstantCase: CamelCase
+  readability-identifier-naming.StaticConstantPrefix: k
+  readability-identifier-naming.ConstexprVariableCase: CamelCase
+  readability-identifier-naming.ConstexprVariablePrefix: k
 
 # Specifically enable some C++17 features
 CheckOptions:
@@ -57,9 +90,14 @@ CheckOptions:
     value: lower_case
   - key: readability-braces-around-statements.ShortStatementLines
     value: 0
+  - key: readability-identifier-naming.IgnoreNamespaces
+    value: 'false'
+  - key: modernize-loop-convert.MinConfidence
+    value: 'reasonable' # Adjust confidence for loop conversion if needed
 
 # Explicitly setting these to prefer Google style with the modifications in @instructions.mdc
 FormatStyle: 'file'
-HeaderFilterRegex: '.*'
-WarningsAsErrors: '*'
-UseColor: true 
+HeaderFilterRegex: '^(src|include|tests)/' # Only check project headers/sources
+WarningsAsErrors: '*' # Treat all warnings as errors
+UseColor: true
+AnalyzeTemporaryDtors: true 
