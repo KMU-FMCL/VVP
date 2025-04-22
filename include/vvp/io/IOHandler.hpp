@@ -1,6 +1,8 @@
 #ifndef VVP_IO_IOHANDLER_H_
 #define VVP_IO_IOHANDLER_H_
 
+#include "absl/strings/string_view.h"
+
 #include <string>
 #include <vector>
 
@@ -84,8 +86,8 @@ class IOHandler {
    * @param extension 파일 확장자
    * @return 생성된 파일 경로
    */
-  std::string generate_output_file_path(const std::string& prefix,
-                                        const std::string& extension) const;
+  std::string generate_output_file_path(absl::string_view prefix,
+                                        absl::string_view extension) const;
 
  private:
   Config config_;
@@ -105,7 +107,7 @@ class IOHandler {
    * @param timestamp 전체 타임스탬프 문자열 (YYYYMMDD_HHMMSS)
    * @return 시간 부분 문자열 (HHMMSS), 추출 실패 시 "000000"
    */
-  static std::string extract_time_part(const std::string& timestamp);
+  static std::string extract_time_part(absl::string_view timestamp);
 
   /**
    * @brief 디렉토리가 존재하지 않으면 생성

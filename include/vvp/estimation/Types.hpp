@@ -1,6 +1,8 @@
 #ifndef VVP_ESTIMATION_TYPES_H_
 #define VVP_ESTIMATION_TYPES_H_
 
+#include "absl/strings/string_view.h"
+
 #include <string>
 #include <vector>
 
@@ -9,7 +11,7 @@
 namespace vv {
 
 // 시간 형식 상수
-const std::string kIsoTimeFormat = "%Y%m%d_%H%M%S";
+const absl::string_view kIsoTimeFormat = "%Y%m%d_%H%M%S";
 
 // 프로그램 설정 구조체
 struct Config {

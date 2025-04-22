@@ -1,6 +1,9 @@
 #ifndef VVP_UTILS_HELPERS_H_
 #define VVP_UTILS_HELPERS_H_
 
+#include "absl/strings/string_view.h"
+#include "absl/time/time.h"
+
 #include <algorithm>
 #include <chrono>
 #include <numeric>
@@ -26,7 +29,7 @@ Config parse_command_line_args(int argc, char* argv[]);
  * @param format 시간 포맷 문자열
  * @return 포매팅된 시간 문자열
  */
-std::string format_current_time(const std::string& format = kIsoTimeFormat);
+std::string format_current_time(absl::string_view format = kIsoTimeFormat);
 
 /**
  * @brief 현재 날짜를 YYYYMMDD 형식의 문자열로 반환
