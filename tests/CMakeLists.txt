@@ -1,19 +1,19 @@
-# 테스트에 필요한 Google Test 찾기
+# Find Google Test for testing
 find_package(GTest QUIET)
 
-# 테스트 활성화
+# Enable testing
 enable_testing()
 
 if(NOT GTEST_FOUND)
-    # 시스템 GTest 패키지가 없으면 세 가지 방법 중 하나를 시도
-    # 1) 테스트 디렉토리의 googletest 서브모듈 사용
+    # Try one of three methods if system GTest package is not found
+    # 1) Use googletest submodule in the test directory
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt)
         add_subdirectory(
             ${CMAKE_CURRENT_SOURCE_DIR}/googletest
             ${CMAKE_CURRENT_BINARY_DIR}/googletest
         )
     else()
-        # 2) FetchContent를 이용해 원격에서 GoogleTest 다운로드
+        # 2) Download GoogleTest remotely using FetchContent
         include(FetchContent)
         FetchContent_Declare(
             googletest
@@ -25,7 +25,7 @@ if(NOT GTEST_FOUND)
 endif()
 
 
-# 구현 파일 목록
+# Implementation files list
 set(IMPLEMENTATION_SOURCES
     ${CMAKE_SOURCE_DIR}/src/estimation/VVEstimator.cpp
     ${CMAKE_SOURCE_DIR}/src/processing/ImageProcessor.cpp
@@ -34,36 +34,36 @@ set(IMPLEMENTATION_SOURCES
     ${CMAKE_SOURCE_DIR}/src/utils/Helpers.cpp
 )
 
-# 테스트 소스 파일 목록
+# Test source files list
 set(TEST_SOURCES
     test_vv_estimator.cpp
     test_image_processor.cpp
 )
 
-# 테스트 타겟 목록 저장
+# Store test targets list
 set(TEST_TARGETS)
 
-# 각 테스트 대상 생성
+# Create each test target
 foreach(test_source ${TEST_SOURCES})
     get_filename_component(test_name ${test_source} NAME_WE)
     add_executable(${test_name} ${test_source} ${IMPLEMENTATION_SOURCES})
     list(APPEND TEST_TARGETS ${test_name})
     
     if(GTEST_FOUND)
-        # 시스템에서 찾은 GTest 헤더 및 라이브러리 사용
+        # Use GTest headers and libraries found in the system
         target_include_directories(${test_name} PRIVATE ${GTEST_INCLUDE_DIRS})
         target_link_libraries(${test_name} PRIVATE ${GTEST_BOTH_LIBRARIES})
     else()
         target_link_libraries(${test_name} PRIVATE gtest gtest_main)
     endif()
 
-    # 프로젝트 루트 경로 정의 (IOHandler 등에서 사용)
+    # Define project root path (used in IOHandler, etc.)
     target_compile_definitions(${test_name} PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
     
-    # OpenCV 라이브러리 링크
+    # Link OpenCV libraries
     target_link_libraries(${test_name} PRIVATE ${OpenCV_LIBS})
     
-    # Abseil 라이브러리 링크
+    # Link Abseil libraries
     target_link_libraries(${test_name} PRIVATE
         absl::strings
         absl::str_format
@@ -75,19 +75,19 @@ foreach(test_source ${TEST_SOURCES})
         absl::statusor
     )
     
-    # 테스트에 사용되는 헤더 파일 디렉토리 추가
+    # Add header file directories used for testing
     target_include_directories(${test_name} PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/../include
     )
     
-    # Google Test를 사용하는 경우, 스레드 라이브러리 필요
+    # Thread library required when using Google Test
     find_package(Threads REQUIRED)
     target_link_libraries(${test_name} PRIVATE Threads::Threads)
     
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
-# 테스트 실행 대상 추가
+# Add test execution target
 add_custom_target(run_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
     DEPENDS ${TEST_TARGETS}

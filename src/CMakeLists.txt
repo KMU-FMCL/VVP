@@ -1,4 +1,4 @@
-# 소스 파일 추가
+# Add source files
 set(SOURCES
     main.cpp
     io/IOHandler.cpp
@@ -10,7 +10,7 @@ set(SOURCES
     fps/FPSCounter.cpp
 )
 
-# 실행 파일 빌드
+# Build executable
 add_executable(vv_estimator ${SOURCES})
 
 # -- yaml-cpp linking fallback across environments --
@@ -26,7 +26,7 @@ else()
     message(FATAL_ERROR "yaml-cpp library not found; please install yaml-cpp")
 endif()
 
-# 라이브러리 연결
+# Link libraries
 # define PROJECT_ROOT macro to locate config directory
 # Macro PROJECT_ROOT expands to the project source directory
 target_compile_definitions(vv_estimator PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
@@ -44,7 +44,7 @@ target_link_libraries(vv_estimator
         absl::statusor
 )
 
-# 컴파일 옵션 추가
+# Add compiler options
 target_compile_options(vv_estimator PRIVATE 
     $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra>
     $<$<CXX_COMPILER_ID:MSVC>:/W4>
