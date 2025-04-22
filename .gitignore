@@ -1,12 +1,13 @@
 # Build
 /build/
-/build_tests/
 /install/
 
 # IDE
 /.vscode/
 /.vs/
 /.idea/
+/.cursor/
+.cursorignore
 /cmake-build-*/
 *.suo
 *.user

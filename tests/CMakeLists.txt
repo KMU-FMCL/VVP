@@ -5,16 +5,25 @@ find_package(GTest QUIET)
 enable_testing()
 
 if(NOT GTEST_FOUND)
-    # GTest를 찾을 수 없는 경우 GitHub에서 가져오기
-    include(FetchContent)
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG v1.14.0  # 최신 버전으로 업데이트
-    )
-    # CMake 3.14+ 이상에서 사용 가능
-    FetchContent_MakeAvailable(googletest)
+    # 시스템 GTest 패키지가 없으면 세 가지 방법 중 하나를 시도
+    # 1) 테스트 디렉토리의 googletest 서브모듈 사용
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt)
+        add_subdirectory(
+            ${CMAKE_CURRENT_SOURCE_DIR}/googletest
+            ${CMAKE_CURRENT_BINARY_DIR}/googletest
+        )
+    else()
+        # 2) FetchContent를 이용해 원격에서 GoogleTest 다운로드
+        include(FetchContent)
+        FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG v1.14.0
+        )
+        FetchContent_MakeAvailable(googletest)
+    endif()
 endif()
+
 
 # 구현 파일 목록
 set(IMPLEMENTATION_SOURCES
@@ -41,10 +50,15 @@ foreach(test_source ${TEST_SOURCES})
     list(APPEND TEST_TARGETS ${test_name})
     
     if(GTEST_FOUND)
+        # 시스템에서 찾은 GTest 헤더 및 라이브러리 사용
+        target_include_directories(${test_name} PRIVATE ${GTEST_INCLUDE_DIRS})
         target_link_libraries(${test_name} PRIVATE ${GTEST_BOTH_LIBRARIES})
     else()
         target_link_libraries(${test_name} PRIVATE gtest gtest_main)
     endif()
+
+    # 프로젝트 루트 경로 정의 (IOHandler 등에서 사용)
+    target_compile_definitions(${test_name} PRIVATE PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
     
     # OpenCV 라이브러리 링크
     target_link_libraries(${test_name} PRIVATE ${OpenCV_LIBS})

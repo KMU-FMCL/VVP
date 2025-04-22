@@ -28,6 +28,8 @@ add_subdirectory(src)
 # 테스트 빌드 옵션 (기본값: OFF)
 option(BUILD_TESTS "Build tests" OFF)
 if(BUILD_TESTS)
+    # 테스트 활성화 및 CTest 등록
+    enable_testing()
     add_subdirectory(tests)
 endif()
 
