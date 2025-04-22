@@ -68,10 +68,10 @@ TEST_F(ImageProcessorTest, ComputeHOG) {
   EXPECT_EQ(hogResult.histogram.size(), 180);
 
   // 결과 매트릭스 검증
-  EXPECT_FALSE(hogResult.gradientX.empty());
-  EXPECT_FALSE(hogResult.gradientY.empty());
+  EXPECT_FALSE(hogResult.gradient_x.empty());
+  EXPECT_FALSE(hogResult.gradient_y.empty());
   EXPECT_FALSE(hogResult.magnitude.empty());
-  EXPECT_FALSE(hogResult.magnitudeFiltered.empty());
+  EXPECT_FALSE(hogResult.magnitude_filtered.empty());
 
   // 테스트 환경의 정확한 값을 예측하기 어려우므로
   // 히스토그램이 제대로 계산되는지만 확인합니다
