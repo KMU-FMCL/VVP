@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_UTILS_HELPERS_H_
+#define VVP_UTILS_HELPERS_H_
 
 #include <algorithm>
 #include <chrono>
@@ -25,7 +26,7 @@ Config parseCommandLineArgs(int argc, char* argv[]);
  * @param format 시간 포맷 문자열
  * @return 포매팅된 시간 문자열
  */
-std::string formatCurrentTime(const std::string& format = ISO_TIME_FORMAT);
+std::string formatCurrentTime(const std::string& format = kIsoTimeFormat);
 
 /**
  * @brief 현재 날짜를 YYYYMMDD 형식의 문자열로 반환
@@ -99,3 +100,5 @@ std::vector<int> vv::utils::argmaxN(const std::vector<T>& vec, int n,
   indices.resize(std::min(n, static_cast<int>(indices.size())));
   return indices;
 }
+
+#endif  // VVP_UTILS_HELPERS_H_

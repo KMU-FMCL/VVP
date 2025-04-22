@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_PROCESSING_IMAGEPROCESSOR_H_
+#define VVP_PROCESSING_IMAGEPROCESSOR_H_
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -61,8 +62,8 @@ class ImageProcessor {
                               float fps = 0.0f) const;
 
  private:
-  HOGParams m_params;
-  cv::Mat m_erodeKernel;
+  HOGParams params_;
+  cv::Mat erode_kernel_;
 
   /**
    * @brief 이미지에 VV 각도 선 그리기
@@ -74,3 +75,5 @@ class ImageProcessor {
 };
 
 }  // namespace vv
+
+#endif  // VVP_PROCESSING_IMAGEPROCESSOR_H_

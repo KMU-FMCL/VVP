@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_ESTIMATION_TYPES_H_
+#define VVP_ESTIMATION_TYPES_H_
 
 #include <string>
 #include <vector>
@@ -8,7 +9,7 @@
 namespace vv {
 
 // 시간 형식 상수
-const std::string ISO_TIME_FORMAT = "%Y%m%d_%H%M%S";
+const std::string kIsoTimeFormat = "%Y%m%d_%H%M%S";
 
 // 프로그램 설정 구조체
 struct Config {
@@ -60,3 +61,5 @@ struct HOGResult {
 };
 
 }  // namespace vv
+
+#endif  // VVP_ESTIMATION_TYPES_H_

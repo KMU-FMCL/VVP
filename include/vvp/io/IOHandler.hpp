@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_IO_IOHANDLER_H_
+#define VVP_IO_IOHANDLER_H_
 
 #include <string>
 #include <vector>
@@ -52,7 +53,7 @@ class IOHandler {
 
   /**
    * @brief 프레임을 결과 비디오에 쓰기
-   * @param frame 저장할 프레임
+   * @param frame
    */
   void writeFrame(const cv::Mat& frame);
 
@@ -87,11 +88,11 @@ class IOHandler {
                                      const std::string& extension) const;
 
  private:
-  Config m_config;
-  cv::VideoCapture m_videoCapture;
-  cv::VideoWriter m_videoWriter;
-  std::string m_csvFilePath;
-  std::string m_videoFilePath;
+  Config config_;
+  cv::VideoCapture video_capture_;
+  cv::VideoWriter video_writer_;
+  std::string csv_file_path_;
+  std::string video_file_path_;
 
   /**
    * @brief 현재 시간을 기반으로 타임스탬프 문자열 생성
@@ -114,3 +115,5 @@ class IOHandler {
 };
 
 }  // namespace vv
+
+#endif  // VVP_IO_IOHANDLER_H_

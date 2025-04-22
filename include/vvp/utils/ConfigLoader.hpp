@@ -1,4 +1,6 @@
-#pragma once
+#ifndef VVP_UTILS_CONFIGLOADER_H_
+#define VVP_UTILS_CONFIGLOADER_H_
+
 #include <string>
 
 #include "vvp/estimation/Types.hpp"
@@ -32,3 +34,5 @@ class ConfigLoader {
 
 }  // namespace utils
 }  // namespace vv
+
+#endif  // VVP_UTILS_CONFIGLOADER_H_

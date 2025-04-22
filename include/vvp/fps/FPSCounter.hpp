@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_FPS_FPSCOUNTER_H_
+#define VVP_FPS_FPSCOUNTER_H_
 
 #include <chrono>  // 시간 관련 헤더
 
@@ -49,11 +50,13 @@ class FPSCounter {
   double getTotalProcessingTimeSec() const;
 
  private:
-  std::chrono::high_resolution_clock::time_point m_frameStartTime;
-  std::chrono::high_resolution_clock::time_point m_overallStartTime;
-  long long m_frameCount;
-  double m_totalProcessingTimeSec;
-  double m_currentFPS;
+  std::chrono::high_resolution_clock::time_point frame_start_time_;
+  std::chrono::high_resolution_clock::time_point overall_start_time_;
+  long long frame_count_;
+  double total_processing_time_sec_;
+  double current_fps_;
 };
 
 }  // namespace vv
+
+#endif  // VVP_FPS_FPSCOUNTER_H_

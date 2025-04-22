@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VVP_ESTIMATION_VVESTIMATOR_H_
+#define VVP_ESTIMATION_VVESTIMATOR_H_
 
 #include <vector>
 
@@ -54,8 +55,10 @@ class VVEstimator {
                                        int height) const;
 
  private:
-  std::vector<VVResult> m_results;  ///< 모든 프레임의 VV 결과 저장
-  VVParams m_params;                ///< estimator 파라미터 저장
+  std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
+  VVParams params_;                ///< estimator 파라미터 저장
 };
 
 }  // namespace vv
+
+#endif  // VVP_ESTIMATION_VVESTIMATOR_H_
