@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include <opencv2/core.hpp>
-
 #include "absl/strings/string_view.h"
+
+#include <opencv2/core.hpp>
 
 namespace vv {
 
