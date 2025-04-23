@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <numeric>
 
+#include "absl/strings/str_format.h"
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-
-#include "absl/strings/str_format.h"
 
 namespace vv {
 
@@ -18,8 +18,8 @@ VVEstimator::VVEstimator(const VVParams& params) : params_(params) {
   // 사용자 정의 파라미터 사용
 }
 
-VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
-                                  const VVResult& previous_result) {
+auto VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
+                              const VVResult& previous_result) -> VVResult {
   VVResult result;
 
   // 최대 3개의 피크 찾기
@@ -27,14 +27,13 @@ VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
   std::iota(indices.begin(), indices.end(), 0);
 
   // MIN_ANGLE ~ MAX_ANGLE 범위에서만 고려
-  auto compare_func = [&hog_histogram](int i1, int i2) {
-    return hog_histogram[i1] > hog_histogram[i2];
+  auto compare_func = [&hog_histogram](int idx1, int idx2) {
+    return hog_histogram[idx1] > hog_histogram[idx2];
   };
 
   // 범위 내의 상위 3개 인덱스 찾기 (min_angle ~ max_angle)
   std::vector<int> best_indices;
-  for (size_t i = 0; i < indices.size(); ++i) {
-    int angle = indices[i];
+  for (int angle : indices) {
     if (angle >= params_.min_angle && angle <= params_.max_angle) {
       best_indices.push_back(angle);
     }
@@ -91,29 +90,38 @@ VVResult VVEstimator::estimate_vv(const std::vector<float>& hog_histogram,
   return result;
 }
 
-const std::vector<VVResult>& VVEstimator::get_all_results() const {
+auto VVEstimator::get_all_results() const -> const std::vector<VVResult>& {
   return results_;
 }
 
-cv::Mat VVEstimator::create_histogram_visualization(
+auto VVEstimator::create_histogram_visualization(
     const std::vector<float>& hog_histogram,
     const VVResult& vv_result,
     int width,
-    int height) const {
+    int height) const -> cv::Mat {
   // 히스토그램이 비어있는 경우 검사
   if (hog_histogram.empty()) {
-    return cv::Mat(height, width, CV_8UC3, cv::Scalar(255, 255, 255));
+    return {height,
+            width,
+            CV_8UC3,
+            cv::Scalar(kWhiteColor, kWhiteColor, kWhiteColor)};
   }
 
   // 정규화를 위해 합계 계산
   float hist_sum =
-      std::accumulate(hog_histogram.begin(), hog_histogram.end(), 0.0f);
+      std::accumulate(hog_histogram.begin(), hog_histogram.end(), 0.0F);
   if (hist_sum <= 0) {
-    return cv::Mat(height, width, CV_8UC3, cv::Scalar(255, 255, 255));
+    return {height,
+            width,
+            CV_8UC3,
+            cv::Scalar(kWhiteColor, kWhiteColor, kWhiteColor)};
   }
 
   // 시각화를 위한 이미지 생성
-  cv::Mat hist_image(height, width, CV_8UC3, cv::Scalar(255, 255, 255));
+  cv::Mat hist_image(height,
+                     width,
+                     CV_8UC3,
+                     cv::Scalar(kWhiteColor, kWhiteColor, kWhiteColor));
 
   // 히스토그램 막대 너비 계산
   int bar_width = std::max(1, width / static_cast<int>(hog_histogram.size()));
@@ -121,7 +129,7 @@ cv::Mat VVEstimator::create_histogram_visualization(
   // 히스토그램 최대값 찾기 (정규화용)
   float max_val =
       *std::max_element(hog_histogram.begin(), hog_histogram.end()) / hist_sum;
-  float scale = kHistogramHeightScale * height /
+  float scale = kHistogramHeightScale * static_cast<float>(height) /
                 std::max(max_val, kHistogramMinValue);  // 높이의 80%까지 사용
 
   // 히스토그램 그리기
@@ -130,61 +138,62 @@ cv::Mat VVEstimator::create_histogram_visualization(
     int bar_height = cvRound(norm_val * scale);
 
     // X축 반전 (180 -> 0)
-    int x = width - static_cast<int>(i) * bar_width - bar_width;
+    int pos_x = width - (static_cast<int>(i) * bar_width) - bar_width;
 
-    cv::rectangle(hist_image,
-                  cv::Point(x, height - bar_height),
-                  cv::Point(x + bar_width, height),
-                  cv::Scalar(100, 100, 100),
-                  cv::FILLED);
+    cv::rectangle(
+        hist_image,
+        cv::Point(pos_x, height - bar_height),
+        cv::Point(pos_x + bar_width, height),
+        cv::Scalar(kHistogramBarColor, kHistogramBarColor, kHistogramBarColor),
+        cv::FILLED);
   }
 
   // VV 각도 표시
   int vv_x =
-      width - static_cast<int>(vv_result.angle) * bar_width - bar_width / 2;
+      width - (static_cast<int>(vv_result.angle) * bar_width) - (bar_width / 2);
   cv::line(hist_image,
            cv::Point(vv_x, 0),
            cv::Point(vv_x, height),
-           cv::Scalar(0, 255, 0),
+           cv::Scalar(kBlackColor, kGreenColor, kBlackColor),
            kThickLineWidth,
            cv::LINE_AA);
 
   // 경계선 표시 (min_angle, max_angle)
-  int x_min = width - params_.min_angle * bar_width - bar_width / 2;
-  int x_max = width - params_.max_angle * bar_width - bar_width / 2;
+  int min_x = width - (params_.min_angle * bar_width) - (bar_width / 2);
+  int max_x = width - (params_.max_angle * bar_width) - (bar_width / 2);
 
   cv::line(hist_image,
-           cv::Point(x_min, 0),
-           cv::Point(x_min, height),
-           cv::Scalar(0, 0, 0),
+           cv::Point(min_x, 0),
+           cv::Point(min_x, height),
+           cv::Scalar(kBlackColor, kBlackColor, kBlackColor),
            kThinLineWidth,
            cv::LINE_AA);
   cv::line(hist_image,
-           cv::Point(x_max, 0),
-           cv::Point(x_max, height),
-           cv::Scalar(0, 0, 0),
+           cv::Point(max_x, 0),
+           cv::Point(max_x, height),
+           cv::Scalar(kBlackColor, kBlackColor, kBlackColor),
            kThinLineWidth,
            cv::LINE_AA);
 
   // X축 눈금 추가
-  for (int angle = 0; angle <= 180; angle += kTickStep) {
-    int x = width - angle * bar_width - bar_width / 2;
+  for (int angle = 0; angle <= kMaxAngle; angle += kTickStep) {
+    int tick_x = width - (angle * bar_width) - (bar_width / 2);
 
     // 눈금 선
     cv::line(hist_image,
-             cv::Point(x, height - 5),
-             cv::Point(x, height),
-             cv::Scalar(0, 0, 0),
+             cv::Point(tick_x, height - kTickLength),
+             cv::Point(tick_x, height),
+             cv::Scalar(kBlackColor, kBlackColor, kBlackColor),
              kThinLineWidth,
              cv::LINE_AA);
 
     // 눈금 레이블
     cv::putText(hist_image,
                 absl::StrFormat("%d", angle),
-                cv::Point(x - 10, height - 10),
+                cv::Point(tick_x - kLabelOffset, height - kLabelOffset),
                 cv::FONT_HERSHEY_SIMPLEX,
                 kLabelFontScale,
-                cv::Scalar(0, 0, 0),
+                cv::Scalar(kBlackColor, kBlackColor, kBlackColor),
                 kThinLineWidth,
                 cv::LINE_AA);
   }
