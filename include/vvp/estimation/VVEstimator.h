@@ -69,6 +69,14 @@ class VVEstimator {
   static constexpr int kThinLineWidth = 1;        ///< 얇은 선 두께
   static constexpr double kLabelFontScale = 0.4;  ///< 레이블 폰트 크기
   static constexpr int kWhiteColor = 255;         ///< 흰색 RGB 값
+
+  // 추가된 상수 정의
+  static constexpr int kHistogramBarColor = 150;  ///< 히스토그램 막대 색상
+  static constexpr int kBlackColor = 0;           ///< 검은색 RGB 값
+  static constexpr int kGreenColor = 255;         ///< 녹색 채널 값
+  static constexpr int kMaxAngle = 180;           ///< 최대 각도
+  static constexpr int kTickLength = 5;           ///< 눈금 선 길이
+  static constexpr int kLabelOffset = 10;         ///< 레이블 오프셋
 };
 
 }  // namespace vv
