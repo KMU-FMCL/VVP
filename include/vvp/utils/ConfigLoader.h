@@ -1,14 +1,11 @@
 #ifndef VVP_UTILS_CONFIGLOADER_H_
 #define VVP_UTILS_CONFIGLOADER_H_
 
+#include "absl/status/statusor.h"
+#include "vvp/estimation/Types.h"
 #include <string>
 
-#include "vvp/estimation/Types.h"
-
-#include "absl/status/statusor.h"
-
-namespace vv {
-namespace utils {
+namespace vv::utils {
 
 /**
  * @brief Combined configuration structures for application modules.
@@ -31,10 +28,9 @@ class ConfigLoader {
    * @param filepath Path to the YAML config file.
    * @return Populated ConfigAll structure with status.
    */
-  static absl::StatusOr<ConfigAll> load(const std::string& filepath);
+  static auto load(std::string const& filepath) -> absl::StatusOr<ConfigAll>;
 };
 
-}  // namespace utils
-}  // namespace vv
+}  // namespace vv::utils
 
 #endif  // VVP_UTILS_CONFIGLOADER_H_
