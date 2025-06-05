@@ -1,23 +1,22 @@
 #include "vvp/io/IOHandler.h"
-
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
-
-#include "vvp/utils/Helpers.h"  // 추가 (get_current_date_string 사용 위해)
-
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "vvp/utils/Helpers.h"  // 추가 (get_current_date_string 사용 위해)
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 namespace vv {
 
-IOHandler::IOHandler(const Config& config) : config_(config) {
+IOHandler::IOHandler(Config config) : config_(std::move(config)) {
   // Resolve relative input path against project root
   if (!config_.use_camera) {
     std::filesystem::path in_path(config_.input_file_path);
@@ -43,11 +42,10 @@ IOHandler::IOHandler(const Config& config) : config_(config) {
   // 날짜 기반 결과 디렉토리 생성
   absl::Status status = ensure_directory_exists(date_result_dir);
   if (!status.ok()) {
-    std::cout << status.message() << std::endl;
+    std::cout << status.message() << '\n';
   } else {
     std::cout << "Results will be saved to directory: "
-              << std::filesystem::absolute(date_result_dir).string()
-              << std::endl;
+              << std::filesystem::absolute(date_result_dir).string() << '\n';
   }
 
   // 비디오, CSV 파일 경로 초기화 (파일 이름에 시간 포함)
@@ -87,7 +85,7 @@ IOHandler::~IOHandler() {
   cv::destroyAllWindows();
 }
 
-absl::Status IOHandler::open_video_source() {
+auto IOHandler::open_video_source() -> absl::Status {
   if (config_.use_camera) {
     video_capture_.open(config_.camera_port, cv::CAP_DSHOW);
   } else {
@@ -104,7 +102,7 @@ absl::Status IOHandler::open_video_source() {
   return absl::OkStatus();
 }
 
-absl::Status IOHandler::read_next_frame(cv::Mat& frame) {
+auto IOHandler::read_next_frame(cv::Mat& frame) -> absl::Status {
   if (!video_capture_.isOpened()) {
     return absl::FailedPreconditionError("Video source is not opened");
   }
@@ -116,7 +114,7 @@ absl::Status IOHandler::read_next_frame(cv::Mat& frame) {
   return absl::OkStatus();
 }
 
-absl::Status IOHandler::setup_video_writer(int width, int height) {
+auto IOHandler::setup_video_writer(int width, int height) -> absl::Status {
   if (!video_capture_.isOpened()) {
     return absl::FailedPreconditionError("Video source is not opened");
   }
@@ -126,7 +124,7 @@ absl::Status IOHandler::setup_video_writer(int width, int height) {
   double fps = video_capture_.get(cv::CAP_PROP_FPS);
 
   if (fps <= 0) {
-    fps = 30.0;  // 기본값 설정
+    fps = kDefaultFps;  // 기본값 설정
   }
 
   // VideoWriter 열기 전에 디렉토리 존재 여부 재확인
@@ -144,23 +142,23 @@ absl::Status IOHandler::setup_video_writer(int width, int height) {
         absl::StrCat("Could not create video writer for: ", video_file_path_));
   }
 
-  std::cout << "Video will be saved to: " << video_file_path_ << std::endl;
+  std::cout << "Video will be saved to: " << video_file_path_ << '\n';
   return absl::OkStatus();
 }
 
-void IOHandler::write_frame(const cv::Mat& frame) {
+auto IOHandler::write_frame(cv::Mat const& frame) -> void {
   if (video_writer_.isOpened()) {
     video_writer_.write(frame);
   }
 }
 
-int IOHandler::display_frame(const cv::Mat& frame, int wait_key) {
+auto IOHandler::display_frame(cv::Mat const& frame, int wait_key) -> int {
   cv::imshow("Visual Vertical Estimation", frame);
   return cv::waitKey(wait_key);
 }
 
-absl::Status IOHandler::save_results_to_csv(
-    const std::vector<VVResult>& results) {
+auto IOHandler::save_results_to_csv(std::vector<VVResult> const& results)
+    -> absl::Status {
   if (results.empty()) {
     return absl::InvalidArgumentError("No results to save");
   }
@@ -180,56 +178,58 @@ absl::Status IOHandler::save_results_to_csv(
   }
 
   // CSV 헤더 작성
-  out_file << "VV_acc_x[m/s^2],VV_acc_y[m/s^2],VV_acc_rad,VV_acc_dig"
-           << std::endl;
+  out_file << "VV_acc_x[m/s^2],VV_acc_y[m/s^2],VV_acc_rad,VV_acc_dig,FPS"
+           << '\n';
 
   // 데이터 작성
-  for (const auto& result : results) {
-    out_file << absl::StrFormat("%.6f,%.6f,%.6f,%.2f",
-                                result.acc_x,
-                                result.acc_y,
-                                result.angle_rad,
-                                result.angle)
-             << std::endl;
+  for (auto const& result : results) {
+    out_file << absl::StrFormat("%.6f,%.6f,%.6f,%.2f,%.2f", result.acc_x,
+                                result.acc_y, result.angle_rad, result.angle,
+                                result.fps)
+             << '\n';
   }
 
   out_file.close();
-  std::cout << "Results saved to: " << csv_file_path_ << std::endl;
+  std::cout << "Results saved to: " << csv_file_path_ << '\n';
 
   return absl::OkStatus();
 }
 
-cv::VideoCapture& IOHandler::get_video_capture() {
+auto IOHandler::get_video_capture() -> cv::VideoCapture& {
   return video_capture_;
 }
 
-std::string IOHandler::generate_output_file_path(
-    absl::string_view prefix, absl::string_view extension) const {
-  // 현재 날짜 기준 디렉토리와 시간을 포함한 파일 이름 생성
+auto IOHandler::generate_output_file_path(absl::string_view prefix,
+                                          absl::string_view extension)
+    -> std::string {
+  // Create a directory path based on current date and a filename including
+  // timestamp
   std::string current_date = utils::get_current_date_string();
   std::filesystem::path base_result_dir = "../results";
   std::filesystem::path date_result_dir =
-      base_result_dir / current_date;  // base_result_dir 객체에 / 연산자 사용
-  std::string timestamp = get_current_time_stamp();
+      base_result_dir /
+      current_date;  // Using the / operator on base_result_dir object
+  std::string timestamp = IOHandler::get_current_time_stamp();
 
-  // 타임스탬프에서 시간 부분 추출
-  std::string time_part = "000000";  // 기본값
+  // Extract time part from timestamp
+  std::string time_part = "000000";  // Default value
   size_t underscore_pos = timestamp.find('_');
   if (underscore_pos != std::string::npos &&
       underscore_pos + 1 < timestamp.length()) {
-    time_part = timestamp.substr(underscore_pos + 1);  // "HHMMSS" 추출
+    time_part = timestamp.substr(underscore_pos + 1);  // Extract "HHMMSS"
   }
 
   return (date_result_dir / absl::StrCat(prefix, "_", time_part, extension))
       .string();
 }
 
-std::string IOHandler::get_current_time_stamp() const {
+auto IOHandler::get_current_time_stamp() -> std::string {
   absl::Time now = absl::Now();
-  return absl::FormatTime(kIsoTimeFormat, now, absl::LocalTimeZone());
+  // Format as "YYYYMMDD_HHMMSS"
+  return absl::FormatTime("%Y%m%d_%H%M%S", now, absl::LocalTimeZone());
 }
 
-std::string IOHandler::extract_time_part(absl::string_view timestamp) {
+auto IOHandler::extract_time_part(absl::string_view timestamp) -> std::string {
   size_t pos = timestamp.find('_');
   if (pos != absl::string_view::npos && pos + 1 < timestamp.size()) {
     return std::string(timestamp.substr(pos + 1));
@@ -237,12 +237,12 @@ std::string IOHandler::extract_time_part(absl::string_view timestamp) {
   return "000000";
 }
 
-absl::Status IOHandler::ensure_directory_exists(
-    const std::filesystem::path& dir) {
+auto IOHandler::ensure_directory_exists(std::filesystem::path const& dir)
+    -> absl::Status {
   try {
     std::filesystem::create_directories(dir);
     return absl::OkStatus();
-  } catch (const std::exception& e) {
+  } catch (std::exception const& e) {
     return absl::InternalError(absl::StrCat(
         "Could not create directory: ", dir.string(), " (", e.what(), ")"));
   }
