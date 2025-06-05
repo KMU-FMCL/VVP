@@ -2,6 +2,7 @@
 #define VVP_FPS_FPSCOUNTER_H_
 
 #include "absl/time/time.h"
+#include <cstdint>
 
 namespace vv {
 
@@ -29,7 +30,7 @@ class FPSCounter {
    * @brief 가장 최근에 계산된 FPS 반환
    * @return 현재 프레임의 FPS
    */
-  double get_fps() const;
+  float get_fps() const;
 
   /**
    * @brief 전체 실행 시간 동안의 평균 FPS 계산 및 반환
@@ -41,7 +42,7 @@ class FPSCounter {
    * @brief 처리된 총 프레임 수 반환
    * @return 총 프레임 수
    */
-  long long get_frame_count() const;
+  int64_t get_frame_count() const;
 
   /**
    * @brief 총 처리 시간(초) 반환
@@ -52,9 +53,9 @@ class FPSCounter {
  private:
   absl::Time frame_start_time_;
   absl::Time overall_start_time_;
-  long long frame_count_;
+  int64_t frame_count_;
   double total_processing_time_sec_;
-  double current_fps_;
+  float current_fps_;
 };
 
 }  // namespace vv
