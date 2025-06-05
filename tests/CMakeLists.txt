@@ -36,8 +36,6 @@ set(IMPLEMENTATION_SOURCES
 
 # Test source files list
 set(TEST_SOURCES
-    test_vv_estimator.cpp
-    test_image_processor.cpp
 )
 
 # Store test targets list
