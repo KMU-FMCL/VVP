@@ -1,65 +1,16 @@
 #ifndef VVP_ESTIMATION_VVESTIMATOR_H_
 #define VVP_ESTIMATION_VVESTIMATOR_H_
 
-#include <vector>
-
-#include <opencv2/core.hpp>
-
 #include "vvp/estimation/Types.h"
+#include <opencv2/core.hpp>
+#include <vector>
 
 namespace vv {
 
 /**
- * @brief Visual Vertical 추정 클래스
- *
- * HOG 히스토그램에서 Visual Vertical 각도를 추정하는 클래스입니다.
+ * @brief VVEstimator 상수 정의
  */
-class VVEstimator {
- public:
-  /**
-   * @brief 기본 생성자 (내부 기본 파라미터 사용)
-   */
-  VVEstimator();
-
-  /**
-   * @brief 파라미터 지정 생성자
-   * @param params Visual Vertical 추정 파라미터
-   */
-  explicit VVEstimator(const VVParams& params);
-
-  /**
-   * @brief HOG 히스토그램에서 VV 각도 추정
-   * @param hogHistogram HOG 히스토그램
-   * @param previousResult 이전 프레임의 VV 결과 (스무딩을 위해 사용)
-   * @return 추정된 VV 결과
-   */
-  auto estimate_vv(const std::vector<float>& hog_histogram,
-                   const VVResult& previous_result) -> VVResult;
-
-  /**
-   * @brief 모든 VV 결과 얻기
-   * @return 지금까지 계산된 모든 VV 결과 벡터
-   */
-  auto get_all_results() const -> const std::vector<VVResult>&;
-
-  /**
-   * @brief 히스토그램 시각화 이미지 생성
-   * @param hogHistogram HOG 히스토그램
-   * @param vvResult 현재 VV 결과
-   * @param width 이미지 너비
-   * @param height 이미지 높이
-   * @return 히스토그램 시각화 이미지
-   */
-  auto create_histogram_visualization(const std::vector<float>& hog_histogram,
-                                      const VVResult& vv_result,
-                                      int width,
-                                      int height) const -> cv::Mat;
-
- private:
-  std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
-  VVParams params_;                ///< estimator 파라미터 저장
-
-  // 상수 정의
+struct VVEstimatorConstants {
   static constexpr int kTopPeakCount = 3;  ///< 상위 피크 개수
   static constexpr float kHistogramHeightScale =
       0.8F;  ///< 히스토그램 높이 스케일
@@ -77,6 +28,58 @@ class VVEstimator {
   static constexpr int kMaxAngle = 180;           ///< 최대 각도
   static constexpr int kTickLength = 5;           ///< 눈금 선 길이
   static constexpr int kLabelOffset = 10;         ///< 레이블 오프셋
+};
+
+/**
+ * @brief Visual Vertical 추정 클래스
+ *
+ * HOG 히스토그램에서 Visual Vertical 각도를 추정하는 클래스입니다.
+ */
+class VVEstimator {
+ public:
+  /**
+   * @brief 기본 생성자 (내부 기본 파라미터 사용)
+   */
+  VVEstimator();
+
+  /**
+   * @brief 파라미터 지정 생성자
+   * @param params Visual Vertical 추정 파라미터
+   */
+  explicit VVEstimator(VVParams const& params);
+
+  /**
+   * @brief HOG 히스토그램에서 VV 각도 추정
+   * @param hogHistogram HOG 히스토그램
+   * @param previousResult 이전 프레임의 VV 결과 (스무딩을 위해 사용)
+   * @param currentFps 현재 프레임의 FPS 값
+   * @return 추정된 VV 결과
+   */
+  auto estimate_vv(std::vector<float> const& hog_histogram,
+                   VVResult const& previous_result, double current_fps)
+      -> VVResult;
+
+  /**
+   * @brief 모든 VV 결과 얻기
+   * @return 지금까지 계산된 모든 VV 결과 벡터
+   */
+  auto get_all_results() const -> std::vector<VVResult> const&;
+
+  /**
+   * @brief 히스토그램 시각화 이미지 생성
+   * @param hogHistogram HOG 히스토그램
+   * @param vvResult 현재 VV 결과
+   * @param width 이미지 너비
+   * @param height 이미지 높이
+   * @return 히스토그램 시각화 이미지
+   */
+  auto create_histogram_visualization(std::vector<float> const& hog_histogram,
+                                      VVResult const& vv_result, int width,
+                                      int height) const -> cv::Mat;
+
+ private:
+  std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
+  VVParams params_;                ///< estimator 파라미터 저장
 };
 
 }  // namespace vv
