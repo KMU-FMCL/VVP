@@ -49,3 +49,50 @@ target_compile_options(vv_estimator PRIVATE
     $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra>
     $<$<CXX_COMPILER_ID:MSVC>:/W4>
 ) 
+
+# Add clang-tidy integration for our targets (not external libraries)
+option(ENABLE_CLANG_TIDY "Enable clang-tidy checks during build" ON)
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_EXE clang-tidy)
+    if(CLANG_TIDY_EXE)
+        message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXE}")
+        # Configure clang-tidy to run only on our specific target
+        set_target_properties(vv_estimator PROPERTIES
+            CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-warnings-as-errors=*"
+        )
+    else()
+        message(WARNING "clang-tidy requested but executable not found")
+    endif()
+endif()
+
+# Add clang-format integration to format code before build
+option(ENABLE_CLANG_FORMAT "Enable clang-format to automatically format code" ON)
+if(ENABLE_CLANG_FORMAT)
+    # Find clang-format executable
+    find_program(CLANG_FORMAT_EXE clang-format)
+    if(CLANG_FORMAT_EXE)
+        message(STATUS "Found clang-format: ${CLANG_FORMAT_EXE}")
+        
+        # Get all source files that should be formatted
+        file(GLOB_RECURSE ALL_SOURCE_FILES 
+            ${CMAKE_SOURCE_DIR}/src/*.cpp
+            ${CMAKE_SOURCE_DIR}/src/*.h
+            ${CMAKE_SOURCE_DIR}/include/*.h
+        )
+        
+        # Create custom target for formatting
+        add_custom_target(
+            format
+            COMMAND ${CLANG_FORMAT_EXE} -style=file -i ${ALL_SOURCE_FILES}
+            COMMENT "Running clang-format to format all source files"
+            VERBATIM
+        )
+        
+        # Make formatting run before building the main target
+        add_dependencies(vv_estimator format)
+        
+        message(STATUS "Code formatting will be automatically applied during build")
+    else()
+        message(WARNING "clang-format requested but executable not found")
+    endif()
+endif() 
