@@ -1,17 +1,14 @@
 #ifndef VVP_IO_IOHANDLER_H_
 #define VVP_IO_IOHANDLER_H_
 
+#include "absl/status/status.h"
+#include "absl/strings/string_view.h"
+#include "vvp/estimation/Types.h"
+#include <opencv2/highgui.hpp>
+#include <opencv2/videoio.hpp>
 #include <filesystem>
 #include <string>
 #include <vector>
-
-#include "absl/status/status.h"
-#include "absl/strings/string_view.h"
-
-#include <opencv2/highgui.hpp>
-#include <opencv2/videoio.hpp>
-
-#include "vvp/estimation/Types.h"
 
 namespace vv {
 
@@ -22,11 +19,15 @@ namespace vv {
  */
 class IOHandler {
  public:
+  // 상수 정의
+  static constexpr double kDefaultFps =
+      30.0;  // 기본 FPS 값 (비디오 소스에서 FPS를 가져올 수 없을 때 사용)
+
   /**
    * @brief 생성자
    * @param config 프로그램 설정
    */
-  explicit IOHandler(const Config& config);
+  explicit IOHandler(Config config);
 
   /**
    * @brief 소멸자
@@ -34,8 +35,8 @@ class IOHandler {
   ~IOHandler();
 
   // Rule of Five 준수: 복사 및 이동 생성자/대입 연산자 비활성화
-  IOHandler(const IOHandler&) = delete;                     // 복사 생성자
-  auto operator=(const IOHandler&) -> IOHandler& = delete;  // 복사 대입 연산자
+  IOHandler(IOHandler const&) = delete;                     // 복사 생성자
+  auto operator=(IOHandler const&) -> IOHandler& = delete;  // 복사 대입 연산자
   IOHandler(IOHandler&&) = delete;                          // 이동 생성자
   auto operator=(IOHandler&&) -> IOHandler& = delete;       // 이동 대입 연산자
 
@@ -64,23 +65,23 @@ class IOHandler {
    * @brief 프레임을 결과 비디오에 쓰기
    * @param frame
    */
-  auto write_frame(const cv::Mat& frame) -> void;
+  auto write_frame(cv::Mat const& frame) -> void;
 
   /**
    * @brief 처리 결과 표시
    * @param frame 표시할 프레임
-   * @param waitKey 키 입력 대기 시간 (ms)
+   * @param wait_key 키 입력 대기 시간 (ms)
    * @return 입력된 키 (ESC: 27)
    */
-  [[nodiscard]] auto display_frame(const cv::Mat& frame, int waitKey = 1)
-      -> int;
+  [[nodiscard]] static auto display_frame(cv::Mat const& frame,
+                                          int wait_key = 1) -> int;
 
   /**
    * @brief 처리 결과 CSV 파일로 저장
    * @param results VV 결과 벡터
    * @return 성공 상태
    */
-  [[nodiscard]] auto save_results_to_csv(const std::vector<VVResult>& results)
+  [[nodiscard]] auto save_results_to_csv(std::vector<VVResult> const& results)
       -> absl::Status;
 
   /**
@@ -95,9 +96,8 @@ class IOHandler {
    * @param extension 파일 확장자
    * @return 생성된 파일 경로
    */
-  [[nodiscard]] auto generate_output_file_path(
-      absl::string_view prefix, absl::string_view extension) const
-      -> std::string;
+  [[nodiscard]] static auto generate_output_file_path(
+      absl::string_view prefix, absl::string_view extension) -> std::string;
 
  private:
   Config config_;
@@ -107,10 +107,10 @@ class IOHandler {
   std::string video_file_path_;
 
   /**
-   * @brief 현재 시간을 기반으로 타임스탬프 문자열 생성
-   * @return 타임스탬프 문자열
+   * @brief 현재 시간을 ISO 형식 문자열로 반환합니다.
+   * @return 현재 시간을 나타내는 문자열 (YYYYMMDD_HHMMSS 형식)
    */
-  [[nodiscard]] auto get_current_time_stamp() const -> std::string;
+  static auto get_current_time_stamp() -> std::string;
 
   /**
    * @brief 타임스탬프에서 시간 부분(HHMMSS)만 추출
@@ -126,7 +126,7 @@ class IOHandler {
    * @return 성공 상태
    */
   [[nodiscard]] static auto ensure_directory_exists(
-      const std::filesystem::path& dir) -> absl::Status;
+      std::filesystem::path const& dir) -> absl::Status;
 };
 
 }  // namespace vv
