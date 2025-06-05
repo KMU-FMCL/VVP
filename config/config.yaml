@@ -1,7 +1,7 @@
 io:
   use_camera: false        # false: file input, true: camera input
   camera_port: 0           # camera device index
-  input_file_path: "./data/test.mp4"  # input video file path
+  input_file_path: "data/test.mp4"  # input video file path
   scale: 2                # image downscale factor
   save_results: true       # save CSV and video results
 
