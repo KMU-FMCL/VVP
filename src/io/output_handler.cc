@@ -1,11 +1,9 @@
 #include "vvp/io/output_handler.h"
-
-#include <fstream>
-#include <iostream>
-
 #include "absl/strings/str_format.h"
 #include "vvp/utils/file_system.h"
 #include "vvp/utils/path.h"
+#include <fstream>
+#include <iostream>
 
 namespace vv::io {
 
@@ -72,8 +70,8 @@ auto OutputHandler::write_frame(cv::Mat const& frame) -> void {
   }
 }
 
-auto OutputHandler::save_results_to_csv(
-    std::vector<VVResult> const& results) -> absl::Status {
+auto OutputHandler::save_results_to_csv(std::vector<VVResult> const& results)
+    -> absl::Status {
   if (!config_.save_results) {
     return absl::OkStatus();
   }
@@ -104,9 +102,8 @@ auto OutputHandler::save_results_to_csv(
 
   csv_file.close();
   if (!csv_file) {
-    return absl::InternalError(
-        absl::StrFormat("Error writing to or closing CSV file: %s",
-                        csv_file_path_));
+    return absl::InternalError(absl::StrFormat(
+        "Error writing to or closing CSV file: %s", csv_file_path_));
   }
   return absl::OkStatus();
 }
