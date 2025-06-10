@@ -8,21 +8,15 @@ namespace vv::utils {
 auto FileSystemUtils::ensure_directory_exists(std::filesystem::path const& dir)
     -> absl::Status {
   try {
-    if (!std::filesystem::exists(dir)) {
-      if (std::filesystem::create_directories(dir)) {
-        // std::cout << "Directory created: " << dir.string() << std::endl; //
-        // 필요시 로그 추가
-      } else {
-        // std::cout << "Failed to create directory (already exists or other
-        // issue): " << dir.string() << std::endl; // 필요시 로그 추가
-      }
-    }
+    // create_directories does nothing if the directory already exists.
+    // It will throw an exception on other errors.
+    std::filesystem::create_directories(dir);
     return absl::OkStatus();
-  } catch (
-      std::filesystem::filesystem_error const& e) {  // 구체적인 예외 타입 명시
+  } catch (std::filesystem::filesystem_error const&
+               e) {  // More specific exception type
     return absl::InternalError(absl::StrCat(
         "Could not create directory: ", dir.string(), " (", e.what(), ")"));
-  } catch (std::exception const& e) {  // 일반적인 예외 처리
+  } catch (std::exception const& e) {  // Generic exception for other cases
     return absl::InternalError(absl::StrCat(
         "An unexpected error occurred while creating directory: ", dir.string(),
         " (", e.what(), ")"));
