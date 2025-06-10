@@ -1,6 +1,7 @@
 #include "vvp/processing/image_processor.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "vvp/processing/constants.h"  // Explicitly include for clarity
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iomanip>
@@ -8,20 +9,6 @@
 #include <sstream>
 
 namespace vv {
-
-// 상수 정의
-cv::Scalar const ImageConstants::Colors::kWhite =
-    cv::Scalar(ImageConstants::kMaxPixelValue, ImageConstants::kMaxPixelValue,
-               ImageConstants::kMaxPixelValue);
-cv::Scalar const ImageConstants::Colors::kBlack =
-    cv::Scalar(ImageConstants::kMinPixelValue, ImageConstants::kMinPixelValue,
-               ImageConstants::kMinPixelValue);
-cv::Scalar const ImageConstants::Colors::kGreen =
-    cv::Scalar(ImageConstants::kMinPixelValue, ImageConstants::kMaxPixelValue,
-               ImageConstants::kMinPixelValue);
-cv::Scalar const ImageConstants::Colors::kRed =
-    cv::Scalar(ImageConstants::kMinPixelValue, ImageConstants::kMinPixelValue,
-               ImageConstants::kMaxPixelValue);
 
 ImageProcessor::ImageProcessor(HOGParams const& params) : params_(params) {
   // 침식 연산을 위한 커널 초기화
