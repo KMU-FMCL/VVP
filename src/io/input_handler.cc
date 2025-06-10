@@ -1,10 +1,10 @@
 #include "vvp/io/input_handler.h"
 #include "absl/strings/str_format.h"  // For absl::StrFormat
-#include "vvp/utils/path_utils.h"     // For PathUtils::resolve_input_path
+#include "vvp/utils/path.h"             // For PathUtils::resolve_input_path
 
 namespace vv::io {
 
-InputHandler::InputHandler(Config const& config) : config_(config) {
+InputHandler::InputHandler(Config config) : config_(std::move(config)) {
   if (!config_.use_camera && !config_.input_file_path.empty()) {
     resolved_input_path_ = utils::PathUtils::resolve_input_path(
         PROJECT_ROOT, config_.input_file_path);

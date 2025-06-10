@@ -16,7 +16,7 @@ namespace vv::io {
 
 class InputHandler {
  public:
-  explicit InputHandler(Config const& config);
+  explicit InputHandler(Config config);
   ~InputHandler();
 
   // Rule of Five
