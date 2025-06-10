@@ -1,7 +1,7 @@
 #ifndef VVP_ESTIMATION_VVESTIMATOR_H_
 #define VVP_ESTIMATION_VVESTIMATOR_H_
 
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <opencv2/core.hpp>
 #include <vector>
 

@@ -1,4 +1,4 @@
-#include "vvp/utils/ConfigLoader.h"
+#include "vvp/utils/config_loader.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"

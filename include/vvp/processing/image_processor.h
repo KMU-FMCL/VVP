@@ -1,7 +1,7 @@
 #ifndef VVP_PROCESSING_IMAGEPROCESSOR_H_
 #define VVP_PROCESSING_IMAGEPROCESSOR_H_
 
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 

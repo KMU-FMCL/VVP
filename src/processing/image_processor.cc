@@ -1,4 +1,4 @@
-#include "vvp/processing/ImageProcessor.h"
+#include "vvp/processing/image_processor.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include <opencv2/highgui.hpp>

@@ -1,13 +1,13 @@
 # Add source files
 set(SOURCES
-    main.cpp
-    io/IOHandler.cpp
-    processing/ImageProcessor.cpp
-    estimation/VVEstimator.cpp
-    estimation/Types.cpp
-    utils/Helpers.cpp
-    utils/ConfigLoader.cpp
-    fps/FPSCounter.cpp
+    main.cc
+    io/io_handler.cc
+    processing/image_processor.cc
+    estimation/vv_estimator.cc
+    estimation/types.cc
+    utils/helpers.cc
+    utils/config_loader.cc
+    fps/fps_counter.cc
 )
 
 # Build executable
@@ -75,7 +75,7 @@ if(ENABLE_CLANG_FORMAT)
         
         # Get all source files that should be formatted
         file(GLOB_RECURSE ALL_SOURCE_FILES 
-            ${CMAKE_SOURCE_DIR}/src/*.cpp
+            ${CMAKE_SOURCE_DIR}/src/*.cc
             ${CMAKE_SOURCE_DIR}/src/*.h
             ${CMAKE_SOURCE_DIR}/include/*.h
         )

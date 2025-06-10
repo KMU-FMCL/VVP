@@ -4,7 +4,7 @@
 #include "absl/strings/string_view.h"
 #include "absl/time/time.h"
 #include "absl/types/span.h"
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <algorithm>
 #include <ctime>
 #include <numeric>

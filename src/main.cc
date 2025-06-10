@@ -4,12 +4,12 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
-#include "vvp/estimation/VVEstimator.h"
-#include "vvp/fps/FPSCounter.h"
-#include "vvp/io/IOHandler.h"
-#include "vvp/processing/ImageProcessor.h"
-#include "vvp/utils/ConfigLoader.h"  // YAML config loader
-#include "vvp/utils/Helpers.h"       // print_opencv_info
+#include "vvp/estimation/vv_estimator.h"
+#include "vvp/fps/fps_counter.h"
+#include "vvp/io/io_handler.h"
+#include "vvp/processing/image_processor.h"
+#include "vvp/utils/config_loader.h"  // YAML config loader
+#include "vvp/utils/helpers.h"        // print_opencv_info
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>

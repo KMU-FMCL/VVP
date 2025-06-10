@@ -2,7 +2,7 @@
 #define VVP_UTILS_CONFIGLOADER_H_
 
 #include "absl/status/statusor.h"
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <string>
 
 namespace vv::utils {

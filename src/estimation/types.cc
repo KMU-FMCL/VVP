@@ -1,4 +1,4 @@
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <cmath>
 
 namespace vv {

@@ -3,7 +3,7 @@
 
 #include "absl/status/status.h"
 #include "absl/strings/string_view.h"
-#include "vvp/estimation/Types.h"
+#include "vvp/estimation/types.h"
 #include <opencv2/highgui.hpp>
 #include <opencv2/videoio.hpp>
 #include <filesystem>

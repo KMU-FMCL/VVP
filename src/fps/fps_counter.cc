@@ -1,4 +1,4 @@
-#include "vvp/fps/FPSCounter.h"
+#include "vvp/fps/fps_counter.h"
 #include "absl/time/clock.h"
 #include "absl/time/time.h"
 #include <cstdint>   // for int64_t

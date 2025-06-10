@@ -1,4 +1,4 @@
-#include "vvp/estimation/VVEstimator.h"
+#include "vvp/estimation/vv_estimator.h"
 #include "absl/strings/str_format.h"
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
