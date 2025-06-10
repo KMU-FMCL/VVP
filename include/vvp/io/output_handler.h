@@ -18,7 +18,7 @@ namespace vv::io {
 
 class OutputHandler {
  public:
-  explicit OutputHandler(Config const& config);
+  explicit OutputHandler(Config config);
   ~OutputHandler();
 
   // Rule of Five

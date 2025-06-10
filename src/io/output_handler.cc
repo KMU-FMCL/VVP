@@ -1,13 +1,13 @@
 #include "vvp/io/output_handler.h"
 #include "absl/strings/str_format.h"      // For absl::StrFormat
-#include "vvp/utils/file_system_utils.h"  // For FileSystemUtils
+#include "vvp/utils/file_system.h"      // For FileSystemUtils
 #include "vvp/utils/path_utils.h"         // For PathUtils
 #include <fstream>                        // For std::ofstream
 #include <iostream>                       // For std::cout (temporary logging)
 
 namespace vv::io {
 
-OutputHandler::OutputHandler(Config const& config) : config_(config) {
+OutputHandler::OutputHandler(Config config) : config_(std::move(config)) {
   if (config_.save_csv_results) {
     csv_file_path_ =
         utils::PathUtils::generate_csv_output_path(config_, PROJECT_ROOT);
