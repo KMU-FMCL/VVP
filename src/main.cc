@@ -7,11 +7,11 @@
 #include "vvp/estimation/vv_estimator.h"
 #include "vvp/estimation/vv_histogram_visualizer.h"  // Added for VVHistogramVisualizer
 #include "vvp/fps/fps_counter.h"
-#include "vvp/io/input_handler.h"      // Changed from io_handler.h
-#include "vvp/io/output_handler.h"     // Added
+#include "vvp/io/input_handler.h"   // Changed from io_handler.h
+#include "vvp/io/output_handler.h"  // Added
 #include "vvp/processing/image_processor.h"
-#include "vvp/utils/display_utils.h"   // Added
 #include "vvp/utils/config_loader.h"  // YAML config loader
+#include "vvp/utils/display.h"      // For DisplayUtils
 #include "vvp/utils/helpers.h"        // print_opencv_info
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -75,9 +75,9 @@ auto main(int argc, char* argv[]) -> int {
   vv::Config const& config = cfg_all.io;
 
   // 입출력 핸들러 초기화
-  vv::io::InputHandler input_handler(config); // Changed
-  vv::io::OutputHandler output_handler(config); // Added
-  absl::Status status = input_handler.open_video_source(); // Changed
+  vv::io::InputHandler input_handler(config);               // Changed
+  vv::io::OutputHandler output_handler(config);             // Added
+  absl::Status status = input_handler.open_video_source();  // Changed
   if (!status.ok()) {
     std::cerr << "Error: " << status.message() << '\n';
     return 1;
@@ -94,7 +94,7 @@ auto main(int argc, char* argv[]) -> int {
 
   // 첫 프레임 읽기 및 비디오 출력 설정
   cv::Mat frame;
-  status = input_handler.read_next_frame(frame); // Changed
+  status = input_handler.read_next_frame(frame);  // Changed
   if (!status.ok()) {
     std::cerr << "Error: " << status.message() << '\n';
     return 1;
@@ -114,11 +114,13 @@ auto main(int argc, char* argv[]) -> int {
   // FPS 가져오기 (InputHandler에서)
   double fps_for_output = input_handler.get_fps();
   if (fps_for_output <= 0) {
-      fps_for_output = 30.0; // 기본 FPS 설정 (예: 30)
-      std::cout << "Warning: Video source FPS not available or invalid. Using default FPS for output: "
-                << fps_for_output << std::endl;
+    fps_for_output = 30.0;  // 기본 FPS 설정 (예: 30)
+    std::cout << "Warning: Video source FPS not available or invalid. Using "
+                 "default FPS for output: "
+              << fps_for_output << std::endl;
   }
-  status = output_handler.setup_video_writer(result_width, result_height, fps_for_output); // Changed
+  status = output_handler.setup_video_writer(result_width, result_height,
+                                             fps_for_output);  // Changed
   if (!status.ok()) {
     std::cerr << "Warning: " << status.message() << '\n';
   }
@@ -132,7 +134,7 @@ auto main(int argc, char* argv[]) -> int {
     fps_counter.tick_start();
 
     // 프레임 읽기
-    status = input_handler.read_next_frame(frame); // Changed
+    status = input_handler.read_next_frame(frame);  // Changed
     if (!status.ok()) {
       break;
     }
@@ -168,8 +170,9 @@ auto main(int argc, char* argv[]) -> int {
     );
 
     // 결과 표시 및 저장
-    int key = vv::utils::DisplayUtils::display_frame(visualization_result); // Changed
-    output_handler.write_frame(visualization_result); // Changed
+    int key = vv::utils::DisplayUtils::display_frame(
+        visualization_result);                         // Changed
+    output_handler.write_frame(visualization_result);  // Changed
 
     // FPS 측정 종료 (전체 루프 처리 시간 측정)
     fps_counter.tick_end();
@@ -181,8 +184,9 @@ auto main(int argc, char* argv[]) -> int {
   }
 
   // 결과 CSV 저장
-  if (config.save_csv_results) { // Changed from config.save_results
-    status = output_handler.save_results_to_csv(vv_estimator.get_all_results()); // Changed
+  if (config.save_csv_results) {  // Changed from config.save_results
+    status = output_handler.save_results_to_csv(
+        vv_estimator.get_all_results());  // Changed
     if (!status.ok()) {
       std::cerr << "Error saving results: " << status.message() << '\n';
     }
