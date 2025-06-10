@@ -2,33 +2,15 @@
 #define VVP_ESTIMATION_VVESTIMATOR_H_
 
 #include "vvp/estimation/types.h"
+#include "vvp/estimation/vv_estimator_constants.h"  // Added
 #include <opencv2/core.hpp>
 #include <vector>
+// #include <optional> // Not strictly needed if calculate_weighted_vv_angle
+// handles default
 
 namespace vv {
 
-/**
- * @brief VVEstimator 상수 정의
- */
-struct VVEstimatorConstants {
-  static constexpr int kTopPeakCount = 3;  ///< 상위 피크 개수
-  static constexpr float kHistogramHeightScale =
-      0.8F;  ///< 히스토그램 높이 스케일
-  static constexpr float kHistogramMinValue = 0.001F;  ///< 히스토그램 최소값
-  static constexpr int kTickStep = 30;            ///< 히스토그램 X축 눈금 간격
-  static constexpr int kThickLineWidth = 2;       ///< 굵은 선 두께
-  static constexpr int kThinLineWidth = 1;        ///< 얇은 선 두께
-  static constexpr double kLabelFontScale = 0.4;  ///< 레이블 폰트 크기
-  static constexpr int kWhiteColor = 255;         ///< 흰색 RGB 값
-
-  // 추가된 상수 정의
-  static constexpr int kHistogramBarColor = 150;  ///< 히스토그램 막대 색상
-  static constexpr int kBlackColor = 0;           ///< 검은색 RGB 값
-  static constexpr int kGreenColor = 255;         ///< 녹색 채널 값
-  static constexpr int kMaxAngle = 180;           ///< 최대 각도
-  static constexpr int kTickLength = 5;           ///< 눈금 선 길이
-  static constexpr int kLabelOffset = 10;         ///< 레이블 오프셋
-};
+// VVEstimatorConstants struct definition REMOVED
 
 /**
  * @brief Visual Vertical 추정 클래스
@@ -65,21 +47,21 @@ class VVEstimator {
    */
   auto get_all_results() const -> std::vector<VVResult> const&;
 
-  /**
-   * @brief 히스토그램 시각화 이미지 생성
-   * @param hogHistogram HOG 히스토그램
-   * @param vvResult 현재 VV 결과
-   * @param width 이미지 너비
-   * @param height 이미지 높이
-   * @return 히스토그램 시각화 이미지
-   */
-  auto create_histogram_visualization(std::vector<float> const& hog_histogram,
-                                      VVResult const& vv_result, int width,
-                                      int height) const -> cv::Mat;
+  // create_histogram_visualization declaration REMOVED
 
  private:
   std::vector<VVResult> results_;  ///< 모든 프레임의 VV 결과 저장
   VVParams params_;                ///< estimator 파라미터 저장
+
+  // ADDED private member functions for estimate_vv refactoring
+  auto find_top_peak_indices(std::vector<float> const& hog_histogram) const
+      -> std::vector<int>;
+  static auto calculate_weighted_vv_angle(
+      std::vector<float> const& hog_histogram,  // static added
+      std::vector<int> const& peak_indices,
+      double previous_angle) -> double;  // const removed
+  auto apply_temporal_smoothing(double current_angle,
+                                double previous_angle) const -> double;
 };
 
 }  // namespace vv

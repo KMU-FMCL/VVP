@@ -5,6 +5,7 @@
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
 #include "vvp/estimation/vv_estimator.h"
+#include "vvp/estimation/vv_histogram_visualizer.h"  // Added for VVHistogramVisualizer
 #include "vvp/fps/fps_counter.h"
 #include "vvp/io/io_handler.h"
 #include "vvp/processing/image_processor.h"
@@ -82,6 +83,8 @@ auto main(int argc, char* argv[]) -> int {
   // 이미지 처리기 및 VV 추정기 초기화 (YAML 파라미터 사용)
   vv::ImageProcessor image_processor(cfg_all.hog);
   vv::VVEstimator vv_estimator(cfg_all.vv);
+  vv::VVHistogramVisualizer vv_visualizer(
+      cfg_all.vv);  // Added VVHistogramVisualizer instance
 
   // FPS 카운터 초기화
   vv::FPSCounter fps_counter;
@@ -144,7 +147,7 @@ auto main(int argc, char* argv[]) -> int {
         frame, kVerticalAngleDegrees - vv_result.angle);
 
     // 히스토그램 시각화 생성
-    cv::Mat histogram_image = vv_estimator.create_histogram_visualization(
+    cv::Mat histogram_image = vv_visualizer.create_histogram_visualization(
         hog_result.histogram, vv_result, result_width,
         static_cast<int>(original_height * kHistogramHeightFactor));
 
