@@ -4,6 +4,7 @@ set(SOURCES
     io/io_handler.cc
     processing/image_processor.cc
     estimation/vv_estimator.cc
+    estimation/vv_histogram_visualizer.cc
     estimation/types.cc
     utils/helpers.cc
     utils/config_loader.cc
