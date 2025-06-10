@@ -11,7 +11,7 @@
 #include "vvp/io/output_handler.h"  // Added
 #include "vvp/processing/image_processor.h"
 #include "vvp/utils/config_loader.h"  // YAML config loader
-#include "vvp/utils/display.h"      // For DisplayUtils
+#include "vvp/utils/display.h"        // For DisplayUtils
 #include "vvp/utils/helpers.h"        // print_opencv_info
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -171,7 +171,7 @@ auto main(int argc, char* argv[]) -> int {
 
     // 결과 표시 및 저장
     int key = vv::utils::DisplayUtils::display_frame(
-        visualization_result);                         // Changed
+        "Visual Vertical Estimation", visualization_result, 1);
     output_handler.write_frame(visualization_result);  // Changed
 
     // FPS 측정 종료 (전체 루프 처리 시간 측정)
@@ -184,7 +184,7 @@ auto main(int argc, char* argv[]) -> int {
   }
 
   // 결과 CSV 저장
-  if (config.save_csv_results) {  // Changed from config.save_results
+  if (config.save_results) {
     status = output_handler.save_results_to_csv(
         vv_estimator.get_all_results());  // Changed
     if (!status.ok()) {
