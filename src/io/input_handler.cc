@@ -1,6 +1,6 @@
 #include "vvp/io/input_handler.h"
 #include "absl/strings/str_format.h"  // For absl::StrFormat
-#include "vvp/utils/path.h"             // For PathUtils::resolve_input_path
+#include "vvp/utils/path.h"           // For PathUtils::resolve_input_path
 
 namespace vv::io {
 
@@ -19,14 +19,11 @@ InputHandler::~InputHandler() {
 
 auto InputHandler::open_video_source() -> absl::Status {
   if (config_.use_camera) {
-    video_capture_.open(config_.camera_id);
+    video_capture_.open(config_.camera_port);
     if (!video_capture_.isOpened()) {
       return absl::InternalError(absl::StrFormat(
-          "Failed to open camera with ID: %d", config_.camera_id));
+          "Failed to open camera with ID: %d", config_.camera_port));
     }
-    video_capture_.set(cv::CAP_PROP_FRAME_WIDTH, config_.camera_width);
-    video_capture_.set(cv::CAP_PROP_FRAME_HEIGHT, config_.camera_height);
-    video_capture_.set(cv::CAP_PROP_FPS, config_.camera_fps);
 
   } else {
     if (resolved_input_path_.empty()) {
