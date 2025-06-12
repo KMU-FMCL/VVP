@@ -6,7 +6,10 @@ set(SOURCES
     processing/hog_processor.cc
     processing/constants.cc # Added constants.cc
     utils/image.cc # Added image.cc
-    utils/visualization.cc # Added visualization.cc
+    visualization/visualization.cc # Moved and will be coordinator
+    visualization/hog_drawing.cc
+    visualization/vv_indicator_drawing.cc
+    visualization/info_display.cc
     estimation/vv_estimator.cc
     estimation/vv_histogram_visualizer.cc
     estimation/types.cc
@@ -86,7 +89,8 @@ if(ENABLE_CLANG_FORMAT)
         file(GLOB_RECURSE ALL_SOURCE_FILES 
             ${CMAKE_SOURCE_DIR}/src/*.cc
             ${CMAKE_SOURCE_DIR}/src/*.h
-            ${CMAKE_SOURCE_DIR}/include/*.h
+            ${CMAKE_SOURCE_DIR}/include/vvp/*/*.h # Adjusted for new structure
+            ${CMAKE_SOURCE_DIR}/include/vvp/*.h # Original include path
         )
         
         # Create custom target for formatting
