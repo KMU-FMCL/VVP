@@ -5,6 +5,7 @@ set(SOURCES
     io/output_handler.cc
     processing/image_processor.cc
     processing/constants.cc # Added constants.cc
+    utils/image_utils.cc # Added image_utils.cc
     estimation/vv_estimator.cc
     estimation/vv_histogram_visualizer.cc
     estimation/types.cc
