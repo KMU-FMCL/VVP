@@ -1,18 +1,28 @@
 #include "vvp/visualization/layers/input_image_layer.h"
-#include <opencv2/imgproc.hpp>  // For cv::cvtColor if needed, or just for Mat operations
+#include "vvp/visualization/visualization_context.h"
+#include <opencv2/imgproc.hpp>  // For potential drawing functions, if needed in future
+#include <iostream>             // For std::cerr
 
 namespace vv::visualization {
 
 InputImageLayer::InputImageLayer() = default;
 
 void InputImageLayer::draw(VisualizationContext& context) {
-  if (context.input_image.empty()) {
-    // Or log an error/warning
+  // Check if input_image exists and is not empty
+  cv::Mat const& input = context.getInputImage();
+  if (input.empty()) {
+    std::cerr << "InputImageLayer: Input image is empty. Skipping."
+              << std::endl;
     return;
   }
-  // The output_image is a reference, so we draw onto it.
-  // copyTo will handle allocation if output_image is empty or wrong size/type.
-  context.input_image.copyTo(context.output_image);
+
+  // For InputImageLayer, we typically copy the input image to the
+  // output/canvas. If output_image is not yet initialized or has a different
+  // size/type, copyTo will handle it.
+  cv::Mat& output = context.getOutputImage();
+  // cv::Mat::copyTo handles allocation if 'output' is empty or has a different
+  // size/type.
+  input.copyTo(output);
 }
 
 }  // namespace vv::visualization
