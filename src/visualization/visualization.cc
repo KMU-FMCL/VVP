@@ -16,7 +16,7 @@ namespace {  // Anonymous namespace for helper functions
 }  // namespace
 
 namespace vv {
-namespace utils {
+namespace visualization {
 
 // Originally from ImageProcessor class, responsible for creating the main
 // visualization
@@ -24,6 +24,7 @@ auto create_visualization(cv::Mat const& input_image,
                           cv::Mat const& calibrated_image,
                           vv::HOGResult const& hog_result,
                           vv::VVResult const& vv_result,
+                          vv::VVParams const& vv_params,
                           cv::Mat const& histogram_image, float fps)
     -> cv::Mat {
   // 원본 이미지에 VV 표시 추가
@@ -192,5 +193,5 @@ auto create_visualization(cv::Mat const& input_image,
   return result;
 }
 
-}  // namespace utils
+}  // namespace visualization
 }  // namespace vv

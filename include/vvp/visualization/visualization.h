@@ -7,7 +7,7 @@
 #include <string>  // For absl::StrFormat, though it's via HOGResult
 
 namespace vv {
-namespace utils {
+namespace visualization {
 
 /**
  * @brief 결과 시각화 이미지 생성
@@ -15,6 +15,7 @@ namespace utils {
  * @param calibrated_image 보정된 이미지
  * @param hog_result HOG 계산 결과
  * @param vv_result VV 추정 결과
+ * @param vv_params VV 파라미터
  * @param histogram_image 히스토그램 이미지
  * @param fps 프레임 속도
  * @return 모든 결과가 결합된 시각화 이미지
@@ -23,9 +24,10 @@ auto create_visualization(cv::Mat const& input_image,
                           cv::Mat const& calibrated_image,
                           vv::HOGResult const& hog_result,
                           vv::VVResult const& vv_result,
+                          vv::VVParams const& vv_params,  // Added vv_params
                           cv::Mat const& histogram_image, float fps) -> cv::Mat;
 
-}  // namespace utils
+}  // namespace visualization
 }  // namespace vv
 
 #endif  // VVP_UTILS_VISUALIZATION_H_
