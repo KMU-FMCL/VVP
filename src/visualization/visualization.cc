@@ -15,21 +15,10 @@
 // and "vvp/processing/types.h".
 
 namespace {  // Anonymous namespace for helper functions
-
-}  // namespace
-
-namespace vv {
-namespace visualization {
-
-// Originally from ImageProcessor class, responsible for creating the main
-// visualization
-auto create_visualization(cv::Mat const& input_image,
-                          cv::Mat const& calibrated_image,
-                          vv::HOGResult const& hog_result,
-                          vv::VVResult const& vv_result,
-                          vv::VVParams const& vv_params,
-                          cv::Mat const& histogram_image, float fps)
-    -> cv::Mat {
+cv::Mat prepare_top_row(cv::Mat const& input_image,
+                        cv::Mat const& calibrated_image,
+                        vv::VVResult const& vv_result,
+                        vv::VVParams const& vv_params) {
   // 원본 이미지에 VV 표시 추가
   cv::Mat input_with_vv = input_image.clone();
   if (!input_with_vv.empty()) {
@@ -51,15 +40,110 @@ auto create_visualization(cv::Mat const& input_image,
   }
 
   // 상단 이미지 가로로 합치기 (원본 + 보정)
-  cv::Mat top_row;
+  cv::Mat top_row_result;
   if (!input_with_vv.empty() && !calibrated_with_line.empty()) {
-    cv::hconcat(input_with_vv, calibrated_with_line, top_row);
+    cv::hconcat(input_with_vv, calibrated_with_line, top_row_result);
   } else if (!input_with_vv.empty()) {
-    top_row = input_with_vv;
+    top_row_result = input_with_vv;
   } else if (!calibrated_with_line.empty()) {
-    top_row = calibrated_with_line;
+    top_row_result = calibrated_with_line;
   }
-  // If both are empty, top_row remains empty.
+  // If both are empty, top_row_result remains empty.
+  return top_row_result;
+}
+
+cv::Mat prepare_histogram_image(cv::Mat const& original_histogram_image,
+                                cv::Mat const& reference_row_for_size) {
+  cv::Mat hist_img = original_histogram_image.clone();
+
+  if (!reference_row_for_size
+           .empty()) {  // Operations based on reference_row_for_size dimensions
+    if (hist_img.empty()) {
+      hist_img = cv::Mat(reference_row_for_size.rows /
+                             static_cast<int>(vv::ImageConstants::kDivideByTwo),
+                         reference_row_for_size.cols, CV_8UC3,
+                         vv::ImageConstants::Colors::kWhite);
+    } else if (hist_img.cols != reference_row_for_size.cols ||
+               (hist_img.rows !=
+                    reference_row_for_size.rows /
+                        static_cast<int>(vv::ImageConstants::kDivideByTwo) &&
+                reference_row_for_size.rows /
+                        static_cast<int>(vv::ImageConstants::kDivideByTwo) >
+                    0)) {
+      int target_hist_height =
+          reference_row_for_size.rows /
+          static_cast<int>(vv::ImageConstants::kDivideByTwo);
+      if (target_hist_height <= 0 && hist_img.rows > 0)
+        target_hist_height =
+            hist_img.rows;           // keep original if target is non-positive
+      if (target_hist_height > 0) {  // only resize if target height is positive
+        cv::resize(hist_img, hist_img,
+                   cv::Size(reference_row_for_size.cols, target_hist_height));
+      } else if (hist_img.cols !=
+                 reference_row_for_size
+                     .cols) {  // if target height is 0, just match width
+        cv::Mat temp_hist = cv::Mat(hist_img.rows, reference_row_for_size.cols,
+                                    hist_img.type());
+        cv::resize(hist_img, temp_hist, temp_hist.size());
+        hist_img = temp_hist;
+      }
+    }
+  } else if (hist_img.empty()) {
+    // If reference_row_for_size is empty, and histogram is also empty,
+    // create a default small white image.
+    // This case implies no other visual content to base dimensions on.
+    int default_width = 200;   // Default width
+    int default_height = 100;  // Default height
+    hist_img = cv::Mat(default_height, default_width, CV_8UC3,
+                       vv::ImageConstants::Colors::kWhite);
+  }
+  // If reference_row_for_size is empty but hist_img is not, hist_img is
+  // returned as is.
+  return hist_img;
+}
+
+cv::Mat assemble_final_image(cv::Mat const& top_row, cv::Mat const& middle_row,
+                             cv::Mat const& histogram_row) {
+  cv::Mat assembled_result;
+  std::vector<cv::Mat> rows_to_concat;
+  if (!top_row.empty()) rows_to_concat.push_back(top_row);
+  if (!middle_row.empty()) rows_to_concat.push_back(middle_row);
+  if (!histogram_row.empty()) rows_to_concat.push_back(histogram_row);
+
+  if (!rows_to_concat.empty()) {
+    try {
+      cv::vconcat(rows_to_concat, assembled_result);
+    } catch (cv::Exception const& e) {
+      std::cerr << "OpenCV Exception in vconcat: " << e.what() << std::endl;
+      // Handle error: e.g., return the first available image or an empty Mat
+      if (!rows_to_concat.empty())
+        assembled_result = rows_to_concat[0].clone();
+      else
+        assembled_result =
+            cv::Mat();  // Should not happen if rows_to_concat was not empty
+    }
+  } else {
+    assembled_result = cv::Mat();  // All parts are empty, return empty Mat
+  }
+  return assembled_result;
+}
+
+}  // namespace
+
+namespace vv {
+namespace visualization {
+
+// Originally from ImageProcessor class, responsible for creating the main
+// visualization
+auto create_visualization(cv::Mat const& input_image,
+                          cv::Mat const& calibrated_image,
+                          vv::HOGResult const& hog_result,
+                          vv::VVResult const& vv_result,
+                          vv::VVParams const& vv_params,
+                          cv::Mat const& histogram_image, float fps)
+    -> cv::Mat {
+  cv::Mat top_row =
+      prepare_top_row(input_image, calibrated_image, vv_result, vv_params);
 
   // HOG 결과 이미지를 새 모듈 함수를 호출하여 생성
   cv::Mat middle_row = vv::visualization::create_hog_images_row(hog_result);
@@ -70,85 +154,12 @@ auto create_visualization(cv::Mat const& input_image,
     cv::resize(middle_row, middle_row, top_row.size());
   }
 
-  // 히스토그램 이미지가 없거나 너비가 다른 경우 수정
-  cv::Mat final_histogram_image = histogram_image;
-  if (!top_row.empty()) {  // Operations based on top_row dimensions
-    if (final_histogram_image.empty()) {
-      final_histogram_image = cv::Mat(
-          top_row.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo),
-          top_row.cols, CV_8UC3, vv::ImageConstants::Colors::kWhite);
-    } else if (final_histogram_image.cols != top_row.cols ||
-               (final_histogram_image.rows !=
-                    top_row.rows /
-                        static_cast<int>(vv::ImageConstants::kDivideByTwo) &&
-                top_row.rows /
-                        static_cast<int>(vv::ImageConstants::kDivideByTwo) >
-                    0)) {
-      // Adjust size if cols don't match or if rows don't match the intended
-      // half-height of top_row
-      int target_hist_height =
-          top_row.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo);
-      if (target_hist_height <= 0 && final_histogram_image.rows > 0)
-        target_hist_height =
-            final_histogram_image
-                .rows;               // keep original if target is non-positive
-      if (target_hist_height > 0) {  // only resize if target height is positive
-        cv::resize(final_histogram_image, final_histogram_image,
-                   cv::Size(top_row.cols, target_hist_height));
-      } else if (final_histogram_image.cols !=
-                 top_row.cols) {  // if target height is 0, just match width
-        cv::Mat temp_hist = cv::Mat(final_histogram_image.rows, top_row.cols,
-                                    final_histogram_image.type());
-        cv::resize(final_histogram_image, temp_hist, temp_hist.size());
-        final_histogram_image = temp_hist;
-      }
-    }
-  } else if (final_histogram_image.empty() && !middle_row.empty()) {
-    // If top_row is empty, but other content exists, create a default histogram
-    // placeholder This case needs careful handling based on desired output when
-    // top_row is missing. For now, let's assume if top_row is empty, histogram
-    // might be based on middle_row or be a default size. This part of logic
-    // might need refinement based on expected behavior for empty top_row.
-    // Creating a small default white image if other rows are present.
-    int default_width;
-    if (!middle_row.empty()) {  // This condition is guaranteed by the outer if
-      default_width = middle_row.cols;
-    } else {
-      default_width = 200;  // Default width if all relevant images are empty
-    }
-    int default_height =
-        middle_row.empty()
-            ? 100
-            : middle_row.rows /
-                  static_cast<int>(vv::ImageConstants::kDivideByTwo);
-    if (default_height <= 0) default_height = 50;  // ensure positive height
-    if (default_width <= 0) default_width = 200;   // ensure positive width
-    final_histogram_image = cv::Mat(default_height, default_width, CV_8UC3,
-                                    vv::ImageConstants::Colors::kWhite);
-  }
+  cv::Mat reference_row_for_hist_size = top_row.empty() ? middle_row : top_row;
+  cv::Mat final_histogram_image =
+      prepare_histogram_image(histogram_image, reference_row_for_hist_size);
 
-  // 수직 합치기
-  cv::Mat result;
-  std::vector<cv::Mat> rows_to_concat;
-  if (!top_row.empty()) rows_to_concat.push_back(top_row);
-  if (!middle_row.empty()) rows_to_concat.push_back(middle_row);
-  if (!final_histogram_image.empty())
-    rows_to_concat.push_back(final_histogram_image);
-
-  if (!rows_to_concat.empty()) {
-    try {
-      cv::vconcat(rows_to_concat, result);
-    } catch (cv::Exception const& e) {
-      std::cerr << "OpenCV Exception in vconcat: " << e.what() << std::endl;
-      // Handle error: e.g., return the first available image or an empty Mat
-      if (!rows_to_concat.empty())
-        result = rows_to_concat[0].clone();
-      else
-        result = cv::Mat();
-    }
-  } else {
-    result = cv::Mat();  // All parts are empty, return empty Mat
-  }
+  cv::Mat result =
+      assemble_final_image(top_row, middle_row, final_histogram_image);
 
   // FPS 정보 추가
   if (!result.empty()) {  // fps > 0.0F 조건은 draw_fps_info 내부에서 처리
