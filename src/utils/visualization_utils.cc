@@ -13,7 +13,7 @@
 
 namespace {  // Anonymous namespace for helper functions
 
-// Originally ImageProcessor::draw_vv_indicators
+// Originally from ImageProcessor class, responsible for drawing VV indicators
 auto draw_vv_indicators_internal(cv::Mat image, vv::VVResult const& vv_result)
     -> cv::Mat {
   try {
@@ -84,7 +84,8 @@ auto draw_vv_indicators_internal(cv::Mat image, vv::VVResult const& vv_result)
 namespace vv {
 namespace utils {
 
-// Originally ImageProcessor::create_visualization
+// Originally from ImageProcessor class, responsible for creating the main
+// visualization
 auto create_visualization(cv::Mat const& input_image,
                           cv::Mat const& calibrated_image,
                           vv::HOGResult const& hog_result,
