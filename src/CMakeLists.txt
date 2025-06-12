@@ -10,6 +10,7 @@ set(SOURCES
     visualization/hog_drawing.cc
     visualization/vv_indicator_drawing.cc
     visualization/info_display.cc
+    visualization/layers/input_image_layer.cc
     estimation/vv_estimator.cc
     estimation/vv_histogram_visualizer.cc
     estimation/types.cc
