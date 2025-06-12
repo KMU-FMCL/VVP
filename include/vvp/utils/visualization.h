@@ -1,5 +1,5 @@
-#ifndef VVP_UTILS_VISUALIZATION_UTILS_H_
-#define VVP_UTILS_VISUALIZATION_UTILS_H_
+#ifndef VVP_UTILS_VISUALIZATION_H_
+#define VVP_UTILS_VISUALIZATION_H_
 
 #include "vvp/estimation/types.h"  // For HOGResult, VVResult
 #include "vvp/processing/constants.h"  // For VisualizationConstants, ImageConstants, AngleConstants
@@ -28,4 +28,4 @@ auto create_visualization(cv::Mat const& input_image,
 }  // namespace utils
 }  // namespace vv
 
-#endif  // VVP_UTILS_VISUALIZATION_UTILS_H_
+#endif  // VVP_UTILS_VISUALIZATION_H_

@@ -1,5 +1,5 @@
-#ifndef VVP_UTILS_IMAGE_UTILS_H_
-#define VVP_UTILS_IMAGE_UTILS_H_
+#ifndef VVP_UTILS_IMAGE_H_
+#define VVP_UTILS_IMAGE_H_
 
 #include <opencv2/core.hpp>
 
@@ -28,4 +28,4 @@ auto rotate_image(cv::Mat const& image, double angle) -> cv::Mat;
 }  // namespace utils
 }  // namespace vv
 
-#endif  // VVP_UTILS_IMAGE_UTILS_H_
+#endif  // VVP_UTILS_IMAGE_H_

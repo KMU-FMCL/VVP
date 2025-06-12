@@ -1,4 +1,4 @@
-#include "vvp/utils/image_utils.h"
+#include "vvp/utils/image.h"
 #include "vvp/processing/constants.h"  // For ImageConstants::kDivideByTwo
 #include <opencv2/imgproc.hpp>
 

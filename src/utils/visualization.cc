@@ -1,4 +1,4 @@
-#include "vvp/utils/visualization_utils.h"
+#include "vvp/utils/visualization.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include <opencv2/imgproc.hpp>  // For drawing functions and cvtColor
@@ -8,7 +8,7 @@
 
 // Constants (ImageConstants, VisualizationConstants, AngleConstants) and
 // Types (HOGResult, VVResult) are included via
-// "vvp/utils/visualization_utils.h" which includes "vvp/processing/constants.h"
+// "vvp/utils/visualization.h" which includes "vvp/processing/constants.h"
 // and "vvp/processing/types.h".
 
 namespace {  // Anonymous namespace for helper functions
