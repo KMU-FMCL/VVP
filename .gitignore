@@ -18,3 +18,12 @@
 # System
 .DS_Store
 Thumbs.db
+
+# Environment
+.env.example
+.roo/
+.roomodes
+.taskmaster/
+.taskmasterconfig
+.windsurf/
+scripts/
