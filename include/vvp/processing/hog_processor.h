@@ -1,5 +1,5 @@
-#ifndef VVP_PROCESSING_IMAGEPROCESSOR_H_
-#define VVP_PROCESSING_IMAGEPROCESSOR_H_
+#ifndef VVP_PROCESSING_HOGPROCESSOR_H_
+#define VVP_PROCESSING_HOGPROCESSOR_H_
 
 #include "vvp/estimation/types.h"
 #include "vvp/processing/constants.h"  // Added constants include
@@ -9,17 +9,18 @@
 namespace vv {
 
 /**
- * @brief 이미지 처리 클래스
+ * @brief HOG 처리 클래스
  *
- * HOG 계산 및 이미지 변환, 처리를 담당하는 클래스입니다.
+ * HOG(Histogram of Oriented Gradients) 계산 및 관련 처리를 담당하는
+ * 클래스입니다.
  */
-class ImageProcessor {
+class HogProcessor {
  public:
   /**
    * @brief 생성자
    * @param params HOG 계산 파라미터
    */
-  explicit ImageProcessor(HOGParams const& params = HOGParams());
+  explicit HogProcessor(HOGParams const& params = HOGParams());
 
   /**
    * @brief HOG(Histogram of Oriented Gradients) 계산
@@ -35,4 +36,4 @@ class ImageProcessor {
 
 }  // namespace vv
 
-#endif  // VVP_PROCESSING_IMAGEPROCESSOR_H_
+#endif  // VVP_PROCESSING_HOGPROCESSOR_H_

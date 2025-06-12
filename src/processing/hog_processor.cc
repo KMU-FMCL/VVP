@@ -1,4 +1,4 @@
-#include "vvp/processing/image_processor.h"
+#include "vvp/processing/hog_processor.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "vvp/processing/constants.h"  // Explicitly include for clarity
@@ -10,14 +10,14 @@
 
 namespace vv {
 
-ImageProcessor::ImageProcessor(HOGParams const& params) : params_(params) {
+HogProcessor::HogProcessor(HOGParams const& params) : params_(params) {
   // 침식 연산을 위한 커널 초기화
   erode_kernel_ = cv::getStructuringElement(
       cv::MORPH_RECT,
       cv::Size(params_.erode_kernel_size, params_.erode_kernel_size));
 }
 
-auto ImageProcessor::compute_hog(cv::Mat const& image) -> HOGResult {
+auto HogProcessor::compute_hog(cv::Mat const& image) -> HOGResult {
   HOGResult result;
 
   // 그레이스케일 변환
