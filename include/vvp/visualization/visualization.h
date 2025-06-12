@@ -1,33 +1,26 @@
+// include/vvp/visualization/visualization.h
 #ifndef VVP_VISUALIZATION_VISUALIZATION_H_
 #define VVP_VISUALIZATION_VISUALIZATION_H_
 
-#include "vvp/estimation/types.h"  // For HOGResult, VVResult
-#include "vvp/processing/constants.h"  // For VisualizationConstants, ImageConstants, AngleConstants
+#include "vvp/estimation/types.h"  // For HOGResult, VVResult (used by context indirectly)
+#include "vvp/processing/constants.h"  // For various constants (used by context indirectly)
 #include <opencv2/core/mat.hpp>
-#include <string>  // For absl::StrFormat, though it's via HOGResult
+#include <string>
 
-namespace vv {
-namespace visualization {
+// Forward declaration
+namespace vv::visualization {
+class VisualizationContext;  // Forward declare VisualizationContext
+}
+
+namespace vv::visualization {
 
 /**
- * @brief 결과 시각화 이미지 생성
- * @param input_image 원본 입력 이미지
- * @param calibrated_image 보정된 이미지
- * @param hog_result HOG 계산 결과
- * @param vv_result VV 추정 결과
- * @param vv_params VV 파라미터
- * @param histogram_image 히스토그램 이미지
- * @param fps 프레임 속도
+ * @brief 결과 시각화 이미지 생성 (컨텍스트 기반)
+ * @param context 시각화에 필요한 모든 데이터를 포함하는 컨텍스트 객체
  * @return 모든 결과가 결합된 시각화 이미지
  */
-auto create_visualization(cv::Mat const& input_image,
-                          cv::Mat const& calibrated_image,
-                          vv::HOGResult const& hog_result,
-                          vv::VVResult const& vv_result,
-                          vv::VVParams const& vv_params,  // Added vv_params
-                          cv::Mat const& histogram_image, float fps) -> cv::Mat;
+auto create_visualization(VisualizationContext& context) -> cv::Mat;
 
-}  // namespace visualization
-}  // namespace vv
+}  // namespace vv::visualization
 
 #endif  // VVP_VISUALIZATION_VISUALIZATION_H_
