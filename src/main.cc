@@ -13,9 +13,9 @@
 #include "vvp/utils/config_loader.h"  // YAML config loader
 #include "vvp/utils/display.h"        // For DisplayUtils
 #include "vvp/utils/helpers.h"        // print_opencv_info
-#include "vvp/utils/image_utils.h"    // Added image_utils.h
+#include "vvp/utils/image.h"          // Added image.h
 #include "vvp/utils/time.h"
-#include "vvp/utils/visualization_utils.h"  // Added visualization_utils.h
+#include "vvp/utils/visualization.h"  // Added visualization.h
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
