@@ -13,6 +13,8 @@
 #include "vvp/utils/config_loader.h"  // YAML config loader
 #include "vvp/utils/display.h"        // For DisplayUtils
 #include "vvp/utils/helpers.h"        // print_opencv_info
+#include "vvp/utils/image_utils.h"    // Added image_utils.h
+#include "vvp/utils/time.h"
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -101,7 +103,7 @@ auto main(int argc, char* argv[]) -> int {
   }
 
   // 이미지 크기 조정
-  frame = vv::ImageProcessor::resize_image(frame, config.scale);
+  frame = vv::utils::resize_image(frame, config.scale);
 
   // 비디오 작성기 설정
   int original_width = frame.cols;
@@ -140,7 +142,7 @@ auto main(int argc, char* argv[]) -> int {
     }
 
     // 이미지 크기 조정
-    frame = vv::ImageProcessor::resize_image(frame, config.scale);
+    frame = vv::utils::resize_image(frame, config.scale);
 
     // HOG 계산
     vv::HOGResult hog_result = image_processor.compute_hog(frame);
@@ -155,8 +157,8 @@ auto main(int argc, char* argv[]) -> int {
     previous_result = vv_result;  // 이전 결과 업데이트는 여기 있어야 함
 
     // 이미지 회전 (보정)
-    cv::Mat calibrated_image = vv::ImageProcessor::rotate_image(
-        frame, kVerticalAngleDegrees - vv_result.angle);
+    cv::Mat calibrated_image =
+        vv::utils::rotate_image(frame, kVerticalAngleDegrees - vv_result.angle);
 
     // 히스토그램 시각화 생성
     cv::Mat histogram_image = vv_visualizer.create_histogram_visualization(
