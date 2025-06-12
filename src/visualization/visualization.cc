@@ -1,6 +1,7 @@
 #include "vvp/visualization/visualization.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>  // For drawing functions and cvtColor
 #include <cmath>                // For std::cos, std::sin
 #include <iostream>             // For std::cerr
@@ -28,8 +29,10 @@ auto create_visualization(cv::Mat const& input_image,
                           cv::Mat const& histogram_image, float fps)
     -> cv::Mat {
   // 원본 이미지에 VV 표시 추가
-  cv::Mat input_with_vv =
-      draw_vv_indicators_internal(input_image.clone(), vv_result);
+  cv::Mat input_with_vv = input_image.clone();
+  if (!input_with_vv.empty()) {
+    vv::visualization::draw_vv_indicators(input_with_vv, vv_result, vv_params);
+  }
 
   // 보정된 이미지에 수평선 추가
   cv::Mat calibrated_with_line = calibrated_image.clone();
