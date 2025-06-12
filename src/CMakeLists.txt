@@ -3,7 +3,7 @@ set(SOURCES
     main.cc
     io/input_handler.cc
     io/output_handler.cc
-    processing/image_processor.cc
+    processing/hog_processor.cc
     processing/constants.cc # Added constants.cc
     utils/image_utils.cc # Added image_utils.cc
     utils/visualization_utils.cc # Added visualization_utils.cc
