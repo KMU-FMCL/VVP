@@ -29,22 +29,6 @@ class ImageProcessor {
   auto compute_hog(cv::Mat const& image) -> HOGResult;
 
   /**
-   * @brief Resize image
-   * @param image Input image
-   * @param scale Scaling factor
-   * @return Resized image
-   */
-  static auto resize_image(cv::Mat const& image, int scale) -> cv::Mat;
-
-  /**
-   * @brief Rotate image
-   * @param image Input image
-   * @param angle Rotation angle (degrees)
-   * @return Rotated image
-   */
-  static auto rotate_image(cv::Mat const& image, double angle) -> cv::Mat;
-
-  /**
    * @brief 결과 시각화 이미지 생성
    * @param inputImage 원본 입력 이미지
    * @param calibratedImage 보정된 이미지
