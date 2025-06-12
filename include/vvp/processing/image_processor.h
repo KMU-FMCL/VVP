@@ -28,35 +28,9 @@ class ImageProcessor {
    */
   auto compute_hog(cv::Mat const& image) -> HOGResult;
 
-  /**
-   * @brief 결과 시각화 이미지 생성
-   * @param inputImage 원본 입력 이미지
-   * @param calibratedImage 보정된 이미지
-   * @param hogResult HOG 계산 결과
-   * @param vvResult VV 추정 결과
-   * @param histogramImage 히스토그램 이미지
-   * @param fps 프레임 속도
-   * @return 모든 결과가 결합된 시각화 이미지
-   */
-  static auto create_visualization(cv::Mat const& input_image,
-                                   cv::Mat const& calibrated_image,
-                                   HOGResult const& hog_result,
-                                   VVResult const& vv_result,
-                                   cv::Mat const& histogram_image,
-                                   float fps = 0.0F) -> cv::Mat;
-
  private:
   HOGParams params_;
   cv::Mat erode_kernel_;
-
-  /**
-   * @brief 이미지에 VV 각도 선 그리기
-   * @param image 대상 이미지
-   * @param vvResult VV 추정 결과
-   * @return VV 표시가 추가된 이미지
-   */
-  static auto draw_vv_indicators(cv::Mat image, VVResult const& vv_result)
-      -> cv::Mat;
 };
 
 }  // namespace vv
