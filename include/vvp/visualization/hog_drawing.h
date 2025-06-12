@@ -14,8 +14,7 @@ struct HOGParams;
 namespace vv {
 namespace visualization {
 
-void draw_hog_elements(cv::Mat& canvas, vv::HOGResult const& hog_result,
-                       vv::HOGParams const& hog_params);
+cv::Mat create_hog_images_row(vv::HOGResult const& hog_result);
 
 }  // namespace visualization
 }  // namespace vv

@@ -1,6 +1,7 @@
 #include "vvp/visualization/visualization.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "vvp/visualization/hog_drawing.h"
 #include "vvp/visualization/info_display.h"  // 새 include 추가
 #include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>  // For drawing functions and cvtColor
@@ -60,36 +61,8 @@ auto create_visualization(cv::Mat const& input_image,
   }
   // If both are empty, top_row remains empty.
 
-  // HOG 결과 이미지 생성
-  cv::Mat hog_magnitude_display;
-  cv::Mat hog_magnitude_filtered_display;
-
-  if (!hog_result.magnitude.empty()) {
-    hog_result.magnitude.convertTo(hog_magnitude_display, CV_8U,
-                                   vv::ImageConstants::kMaxPixelValue);
-    cv::cvtColor(hog_magnitude_display, hog_magnitude_display,
-                 cv::COLOR_GRAY2BGR);
-  }
-  if (!hog_result.magnitude_filtered.empty()) {
-    hog_result.magnitude_filtered.convertTo(hog_magnitude_filtered_display,
-                                            CV_8U,
-                                            vv::ImageConstants::kMaxPixelValue);
-    cv::cvtColor(hog_magnitude_filtered_display, hog_magnitude_filtered_display,
-                 cv::COLOR_GRAY2BGR);
-  }
-
-  // 중간 이미지 가로로 합치기 (HOG 매그니튜드 + 필터링된 매그니튜드)
-  cv::Mat middle_row;
-  if (!hog_magnitude_display.empty() &&
-      !hog_magnitude_filtered_display.empty()) {
-    cv::hconcat(hog_magnitude_display, hog_magnitude_filtered_display,
-                middle_row);
-  } else if (!hog_magnitude_display.empty()) {
-    middle_row = hog_magnitude_display;
-  } else if (!hog_magnitude_filtered_display.empty()) {
-    middle_row = hog_magnitude_filtered_display;
-  }
-  // If both are empty, middle_row remains empty.
+  // HOG 결과 이미지를 새 모듈 함수를 호출하여 생성
+  cv::Mat middle_row = vv::visualization::create_hog_images_row(hog_result);
 
   // 모든 행 세로로 합치기 전에 크기 조정 확인
   if (!middle_row.empty() && !top_row.empty() &&
@@ -130,9 +103,7 @@ auto create_visualization(cv::Mat const& input_image,
         final_histogram_image = temp_hist;
       }
     }
-  } else if (final_histogram_image.empty() &&
-             (!middle_row.empty() || !hog_magnitude_display.empty() ||
-              !hog_magnitude_filtered_display.empty())) {
+  } else if (final_histogram_image.empty() && !middle_row.empty()) {
     // If top_row is empty, but other content exists, create a default histogram
     // placeholder This case needs careful handling based on desired output when
     // top_row is missing. For now, let's assume if top_row is empty, histogram
@@ -140,12 +111,8 @@ auto create_visualization(cv::Mat const& input_image,
     // might need refinement based on expected behavior for empty top_row.
     // Creating a small default white image if other rows are present.
     int default_width;
-    if (!middle_row.empty()) {
+    if (!middle_row.empty()) {  // This condition is guaranteed by the outer if
       default_width = middle_row.cols;
-    } else if (!hog_magnitude_display.empty()) {
-      default_width = hog_magnitude_display.cols;
-    } else if (!hog_magnitude_filtered_display.empty()) {
-      default_width = hog_magnitude_filtered_display.cols;
     } else {
       default_width = 200;  // Default width if all relevant images are empty
     }
