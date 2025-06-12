@@ -167,10 +167,14 @@ auto main(int argc, char* argv[]) -> int {
         static_cast<int>(original_height * kHistogramHeightFactor));
 
     // 시각화 이미지 생성 (여기도 같은 FPS 사용)
-    cv::Mat visualization_result = vv::utils::create_visualization(
-        frame, calibrated_image, hog_result, vv_result, histogram_image,
-        static_cast<float>(fps_to_record)  // 시각화에도 기록용 FPS 사용
-    );
+    cv::Mat visualization_result = vv::visualization::create_visualization(
+        frame,                   // 원본 이미지
+        calibrated_image,        // 보정된 이미지
+        hog_result,              // HOG 계산 결과
+        vv_result,               // VV 추정 결과
+        cfg_all.vv,              // cfg_all.vv로 수정
+        histogram_image,         // HOG 히스토그램 이미지
+        fps_counter.get_fps());  // 시각화에도 기록용 FPS 사용
 
     // 결과 표시 및 저장
     int key = vv::utils::DisplayUtils::display_frame(
