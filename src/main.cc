@@ -15,6 +15,7 @@
 #include "vvp/utils/helpers.h"        // print_opencv_info
 #include "vvp/utils/image_utils.h"    // Added image_utils.h
 #include "vvp/utils/time.h"
+#include "vvp/utils/visualization_utils.h"  // Added visualization_utils.h
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -166,7 +167,7 @@ auto main(int argc, char* argv[]) -> int {
         static_cast<int>(original_height * kHistogramHeightFactor));
 
     // 시각화 이미지 생성 (여기도 같은 FPS 사용)
-    cv::Mat visualization_result = vv::ImageProcessor::create_visualization(
+    cv::Mat visualization_result = vv::utils::create_visualization(
         frame, calibrated_image, hog_result, vv_result, histogram_image,
         static_cast<float>(fps_to_record)  // 시각화에도 기록용 FPS 사용
     );
