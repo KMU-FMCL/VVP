@@ -1,6 +1,7 @@
 #include "vvp/visualization/visualization.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
+#include "vvp/visualization/info_display.h"  // 새 include 추가
 #include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>  // For drawing functions and cvtColor
 #include <cmath>                // For std::cos, std::sin
@@ -183,14 +184,8 @@ auto create_visualization(cv::Mat const& input_image,
   }
 
   // FPS 정보 추가
-  if (!result.empty() && fps > 0.0F) {
-    cv::putText(result, absl::StrFormat("FPS: %.1f", fps),
-                cv::Point(vv::VisualizationConstants::kFpsTextPositionX,
-                          vv::VisualizationConstants::kFpsTextPositionY),
-                cv::FONT_HERSHEY_SIMPLEX,
-                vv::VisualizationConstants::kFpsTextScale,
-                vv::ImageConstants::Colors::kGreen,
-                vv::VisualizationConstants::kLineThickness);
+  if (!result.empty()) {  // fps > 0.0F 조건은 draw_fps_info 내부에서 처리
+    vv::visualization::draw_fps_info(result, fps);
   }
 
   return result;
