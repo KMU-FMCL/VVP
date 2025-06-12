@@ -8,72 +8,82 @@
 #include <iostream>  // For std::cerr
 #include <string>    // For std::string (though absl::StrCat is used)
 
+namespace {
+
+void draw_angle_text(cv::Mat& canvas, double angle) {
+  cv::putText(canvas, absl::StrCat(" VV_dig=", static_cast<int>(angle)),
+              cv::Point(vv::VisualizationConstants::kVvTextPositionX,
+                        vv::VisualizationConstants::kVvTextPositionY),
+              cv::FONT_HERSHEY_PLAIN, vv::VisualizationConstants::kVvTextScale,
+              vv::ImageConstants::Colors::kGreen,
+              vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
+}
+
+void draw_reference_lines(cv::Mat& canvas) {
+  int const center_y =
+      canvas.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo);
+  int const center_x =
+      canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo);
+
+  // Horizontal line
+  cv::line(canvas, cv::Point(0, center_y), cv::Point(canvas.cols, center_y),
+           vv::ImageConstants::Colors::kBlack,
+           vv::VisualizationConstants::kLineThickness, cv::LINE_4);
+
+  // Vertical line
+  cv::line(canvas, cv::Point(center_x, center_y),
+           cv::Point(center_x, canvas.rows), vv::ImageConstants::Colors::kBlack,
+           vv::VisualizationConstants::kLineThickness, cv::LINE_4);
+}
+
+void draw_vv_line(cv::Mat& canvas, double angle) {
+  double const radians =
+      (vv::AngleConstants::kRightAngle - angle) * vv::AngleConstants::kDegToRad;
+  double const length = static_cast<double>(canvas.rows) /
+                        static_cast<double>(vv::ImageConstants::kDivideByTwo);
+  double const delta_x = length * std::cos(radians);
+  double const delta_y = length * std::sin(radians);
+
+  cv::Point const center(
+      canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo),
+      canvas.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo));
+  cv::Point const end(static_cast<int>(center.x + delta_x),
+                      static_cast<int>(center.y - delta_y));
+
+  cv::line(canvas, center, end, vv::ImageConstants::Colors::kGreen,
+           vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
+}
+
+void draw_acceleration_vector(cv::Mat& canvas, double acc_x, double acc_y) {
+  double const length = static_cast<double>(canvas.rows) /
+                        static_cast<double>(vv::ImageConstants::kDivideByTwo);
+  double const acc_scale_factor =
+      length / vv::AngleConstants::kGravityAcceleration;
+  cv::Point const center(
+      canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo),
+      canvas.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo));
+  cv::Point const acc_vec(
+      static_cast<int>(center.x + (acc_x * acc_scale_factor)),
+      static_cast<int>(center.y - (acc_y * acc_scale_factor)));
+
+  cv::arrowedLine(canvas, center, acc_vec, vv::ImageConstants::Colors::kRed,
+                  vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
+}
+
+}  // namespace
+
 namespace vv {
 namespace visualization {
 
 void draw_vv_indicators(cv::Mat& canvas, vv::VVResult const& vv_result,
                         [[maybe_unused]] vv::VVParams const& vv_params) {
   try {
-    // VV 각도 텍스트 추가
-    cv::putText(
-        canvas, absl::StrCat(" VV_dig=", static_cast<int>(vv_result.angle)),
-        cv::Point(vv::VisualizationConstants::kVvTextPositionX,
-                  vv::VisualizationConstants::kVvTextPositionY),
-        cv::FONT_HERSHEY_PLAIN, vv::VisualizationConstants::kVvTextScale,
-        vv::ImageConstants::Colors::kGreen,
-        vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
-
-    // 수평선과 수직선 추가
-    cv::line(canvas,
-             cv::Point(0, canvas.rows / static_cast<int>(
-                                            vv::ImageConstants::kDivideByTwo)),
-             cv::Point(canvas.cols,
-                       canvas.rows /
-                           static_cast<int>(vv::ImageConstants::kDivideByTwo)),
-             vv::ImageConstants::Colors::kBlack,
-             vv::VisualizationConstants::kLineThickness, cv::LINE_4);
-
-    cv::line(
-        canvas,
-        cv::Point(
-            canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo),
-            canvas.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo)),
-        cv::Point(
-            canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo),
-            canvas.rows),
-        vv::ImageConstants::Colors::kBlack,
-        vv::VisualizationConstants::kLineThickness, cv::LINE_4);
-
-    // VV 선 그리기
-    double radians = (vv::AngleConstants::kRightAngle - vv_result.angle) *
-                     vv::AngleConstants::kDegToRad;
-    double length = static_cast<double>(canvas.rows) /
-                    static_cast<double>(vv::ImageConstants::kDivideByTwo);
-    double delta_x = length * std::cos(radians);
-    double delta_y = length * std::sin(radians);
-
-    cv::Point center(
-        canvas.cols / static_cast<int>(vv::ImageConstants::kDivideByTwo),
-        canvas.rows / static_cast<int>(vv::ImageConstants::kDivideByTwo));
-    cv::Point end(static_cast<int>(center.x + delta_x),
-                  static_cast<int>(center.y - delta_y));
-
-    cv::line(canvas, center, end, vv::ImageConstants::Colors::kGreen,
-             vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
-
-    // 가속도 벡터 그리기 (acc_x, acc_y)
-    // Note: Ensure AngleConstants::kGravityAcceleration is appropriate for
-    // scaling or consider passing a scale factor via vv_params if it can vary.
-    double acc_scale_factor = length / vv::AngleConstants::kGravityAcceleration;
-    cv::Point acc_vec(
-        static_cast<int>(center.x + (vv_result.acc_x * acc_scale_factor)),
-        static_cast<int>(center.y - (vv_result.acc_y * acc_scale_factor)));
-    cv::arrowedLine(canvas, center, acc_vec, vv::ImageConstants::Colors::kRed,
-                    vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
-
+    draw_angle_text(canvas, vv_result.angle);
+    draw_reference_lines(canvas);
+    draw_vv_line(canvas, vv_result.angle);
+    draw_acceleration_vector(canvas, vv_result.acc_x, vv_result.acc_y);
   } catch (std::exception const& e) {
     std::cerr << "Error drawing VV indicators: " << e.what() << '\n';
-    // canvas is modified in place, so no return needed, but error is logged.
   }
 }
 
