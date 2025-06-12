@@ -9,7 +9,7 @@
 #include "vvp/fps/fps_counter.h"
 #include "vvp/io/input_handler.h"   // Changed from io_handler.h
 #include "vvp/io/output_handler.h"  // Added
-#include "vvp/processing/image_processor.h"
+#include "vvp/processing/hog_processor.h"
 #include "vvp/utils/config_loader.h"  // YAML config loader
 #include "vvp/utils/display.h"        // For DisplayUtils
 #include "vvp/utils/helpers.h"        // print_opencv_info
@@ -87,7 +87,7 @@ auto main(int argc, char* argv[]) -> int {
   }
 
   // 이미지 처리기 및 VV 추정기 초기화 (YAML 파라미터 사용)
-  vv::ImageProcessor image_processor(cfg_all.hog);
+  vv::HogProcessor processor(cfg_all.hog);
   vv::VVEstimator vv_estimator(cfg_all.vv);
   vv::VVHistogramVisualizer vv_visualizer(
       cfg_all.vv);  // Added VVHistogramVisualizer instance
@@ -146,7 +146,7 @@ auto main(int argc, char* argv[]) -> int {
     frame = vv::utils::resize_image(frame, config.scale);
 
     // HOG 계산
-    vv::HOGResult hog_result = image_processor.compute_hog(frame);
+    vv::HOGResult hog_result = processor.compute_hog(frame);
 
     // VV 추정 (직전 프레임의 FPS 사용)
     // 주의: current_fps는 루프 후반에 계산되므로, 이 시점에서는 이전 루프의
