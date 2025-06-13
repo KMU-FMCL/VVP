@@ -25,6 +25,18 @@ auto resize_image(cv::Mat const& image, int scale) -> cv::Mat;
  */
 auto rotate_image(cv::Mat const& image, double angle) -> cv::Mat;
 
+/**
+ * @brief Assembles multiple image rows vertically into a single image.
+ *
+ * @param top_row The top image row.
+ * @param middle_row The middle image row.
+ * @param histogram_row The bottom image row (typically histogram).
+ * @return cv::Mat The vertically concatenated image. Returns an empty Mat if
+ * all inputs are empty.
+ */
+auto assemble_final_image(cv::Mat const& top_row, cv::Mat const& middle_row,
+                          cv::Mat const& histogram_row) -> cv::Mat;
+
 }  // namespace utils
 }  // namespace vv
 
