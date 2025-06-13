@@ -30,6 +30,13 @@ class VisualizationContext {
     return input_image_;
   }
 
+  // --- HOG Visualization ---
+  void setHogVisualization(cv::Mat const& hog_image) {
+    hog_visualization_ = hog_image.clone();  // 안전을 위해 복사
+  }
+  cv::Mat const& getHogVisualization() const { return hog_visualization_; }
+  cv::Mat& getHogVisualization() { return hog_visualization_; }
+
   // --- Calibrated Image ---
   void setCalibratedImage(cv::Mat const& image) {
     calibrated_image_ = image.clone();  // 안전을 위해 복사
@@ -87,17 +94,16 @@ class VisualizationContext {
   cv::Mat const& getOutputImage() const { return output_image_; }
 
  private:
+  cv::Mat canvas_;
   cv::Mat input_image_;
+  cv::Mat hog_visualization_;
   cv::Mat calibrated_image_;
   vv::HOGResult hog_result_;
   vv::VVResult vv_result_;
   vv::VVParams vv_params_;
   cv::Mat histogram_image_;
   float fps_ = 0.0f;
-
-  cv::Mat
-      output_image_;  // 최종 이미지를 위한 멤버, 참조가 아닌 실제 객체로 변경
-                      // 또는 create_visualization의 로컬 변수로 처리 고려
+  cv::Mat output_image_;
 };
 
 }  // namespace vv::visualization
