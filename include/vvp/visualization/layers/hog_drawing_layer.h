@@ -7,7 +7,7 @@ namespace vv::visualization {
 
 class HogDrawingLayer : public IDrawableLayer {
  public:
-  void Draw(VisualizationContext& context) const override;
+  void draw(VisualizationContext& context) override;
 };
 
 }  // namespace vv::visualization
