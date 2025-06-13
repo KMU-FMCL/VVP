@@ -2,6 +2,8 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "vvp/processing/constants.h"  // Explicitly include for clarity
+#include "vvp/utils/image.h"
+#include "vvp/visualization/hog_drawing.h"
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iomanip>
@@ -17,12 +19,13 @@ HogProcessor::HogProcessor(HOGParams const& params) : params_(params) {
       cv::Size(params_.erode_kernel_size, params_.erode_kernel_size));
 }
 
-auto HogProcessor::compute_hog(cv::Mat const& image) -> HOGResult {
+auto HogProcessor::compute_hog(cv::Mat const& frame)
+    -> std::pair<HOGResult, cv::Mat> {
   HOGResult result;
 
   // 그레이스케일 변환
   cv::Mat gray;
-  cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+  cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
   // 가우시안 블러 적용
   cv::GaussianBlur(gray, gray,
@@ -93,7 +96,8 @@ auto HogProcessor::compute_hog(cv::Mat const& image) -> HOGResult {
   result.magnitude = magnitude;
   result.magnitude_filtered = magnitude_filtered;
 
-  return result;
+  cv::Mat hog_visualization = vv::visualization::create_hog_images_row(result);
+  return {result, hog_visualization};
 }
 
 }  // namespace vv

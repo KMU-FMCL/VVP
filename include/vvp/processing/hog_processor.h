@@ -27,7 +27,7 @@ class HogProcessor {
    * @param image 입력 이미지
    * @return HOG 계산 결과 (그래디언트, 히스토그램, 매그니튜드 등)
    */
-  auto compute_hog(cv::Mat const& image) -> HOGResult;
+  auto compute_hog(cv::Mat const& frame) -> std::pair<HOGResult, cv::Mat>;
 
  private:
   HOGParams params_;
