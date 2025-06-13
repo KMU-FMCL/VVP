@@ -5,8 +5,9 @@
 #include "vvp/utils/image.h"
 #include "vvp/visualization/hog_drawing.h"
 #include "vvp/visualization/info_display.h"
-#include "vvp/visualization/layers/input_image_layer.h"  // Added
-#include "vvp/visualization/visualization_context.h"     // Added
+#include "vvp/visualization/layers/hog_drawing_layer.h"
+#include "vvp/visualization/layers/input_image_layer.h"
+#include "vvp/visualization/visualization_context.h"  // Added
 #include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>
 #include <cmath>
@@ -94,6 +95,11 @@ cv::Mat prepare_histogram_image(
 namespace vv::visualization {
 
 auto create_visualization(VisualizationContext& context) -> cv::Mat {
+  InputImageLayer input_layer;
+  input_layer.draw(context);
+
+  HogDrawingLayer hog_layer;
+  hog_layer.draw(context);
   // 1. Get input image using InputImageLayer
   // For now, directly use the image from context, assuming it's already set.
   // In a full layer-based system, you'd do:
@@ -145,11 +151,9 @@ auto create_visualization(VisualizationContext& context) -> cv::Mat {
     vv::visualization::draw_fps_info(result, fps);
   }
 
-  // Set the final result to context's output image if it's used that way
-  // context.setOutputImage(result); // Or the calling code handles the return
-  // value.
+  context.setOutputImage(result);
 
-  return result;
+  return context.getOutputImage();
 }
 
 }  // namespace vv::visualization
