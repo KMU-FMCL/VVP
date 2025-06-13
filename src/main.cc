@@ -148,7 +148,7 @@ auto main(int argc, char* argv[]) -> int {
       frame = vv::utils::resize_image(frame, config.scale);
 
       // HOG 계산
-      vv::HOGResult hog_result = processor.compute_hog(frame);
+      auto [hog_result, hog_visualization] = processor.compute_hog(frame);
 
       // VV 추정 (직전 프레임의 FPS 사용)
       // 주의: current_fps는 루프 후반에 계산되므로, 이 시점에서는 이전 루프의
@@ -173,6 +173,7 @@ auto main(int argc, char* argv[]) -> int {
       viz_context.setInputImage(frame);
       viz_context.setCalibratedImage(calibrated_image);
       viz_context.setHogResult(hog_result);
+      viz_context.setHogVisualization(hog_visualization);
       viz_context.setVvResult(vv_result);
       viz_context.setVvParams(cfg_all.vv);
       viz_context.setHistogramImage(histogram_image);
