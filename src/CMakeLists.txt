@@ -8,7 +8,6 @@ set(SOURCES
     utils/image.cc # Added image.cc
     visualization/visualization.cc # Moved and will be coordinator
     visualization/hog_drawing.cc
-    visualization/vv_indicator_drawing.cc
     visualization/info_display.cc
     visualization/layers/input_image_layer.cc
     visualization/layers/hog_drawing_layer.cc

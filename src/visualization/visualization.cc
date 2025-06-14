@@ -9,7 +9,6 @@
 #include "vvp/visualization/layers/input_image_layer.h"
 #include "vvp/visualization/layers/vv_indicator_drawing_layer.h"
 #include "vvp/visualization/visualization_context.h"  // Added
-#include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>
 #include <cmath>
 
