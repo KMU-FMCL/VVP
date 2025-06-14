@@ -7,6 +7,7 @@
 #include "vvp/visualization/info_display.h"
 #include "vvp/visualization/layers/hog_drawing_layer.h"
 #include "vvp/visualization/layers/input_image_layer.h"
+#include "vvp/visualization/layers/vv_indicator_drawing_layer.h"
 #include "vvp/visualization/visualization_context.h"  // Added
 #include "vvp/visualization/vv_indicator_drawing.h"
 #include <opencv2/imgproc.hpp>
@@ -16,18 +17,35 @@ namespace {  // Anonymous namespace for helper functions
 // Helper functions (prepare_top_row, get_target_histogram_size,
 // prepare_histogram_image) remain unchanged for now, but will take data from
 // context via create_visualization
-cv::Mat prepare_top_row(
-    cv::Mat const& input_image,  // This will come from context.getInputImage()
-    cv::Mat const& calibrated_image,  // from context.getCalibratedImage()
-    vv::VVResult const& vv_result,    // from context.getVvResult()
-    vv::VVParams const& vv_params) {  // from context.getVvParams()
-  cv::Mat input_with_vv = input_image.clone();
-  if (!input_with_vv.empty()) {
-    vv::visualization::draw_vv_indicators(input_with_vv, vv_result, vv_params);
+cv::Mat prepare_top_row(vv::visualization::VisualizationContext& main_context) {
+  cv::Mat const& input_image = main_context.getInputImage();
+  cv::Mat const& calibrated_image = main_context.getCalibratedImage();
+
+  cv::Mat input_with_vv;
+  if (!input_image.empty()) {
+    input_with_vv = input_image.clone();  // Work on a copy
+
+    // Prepare a context specifically for the VvIndicatorDrawingLayer
+    vv::visualization::VisualizationContext layer_context;
+    layer_context.setOutputImage(
+        input_with_vv);  // Layer will draw on its internal copy of
+                         // input_with_vv
+    layer_context.setVvResult(main_context.getVvResult());
+    layer_context.setVvParams(main_context.getVvParams());
+    // TODO(Cascade): Copy other relevant parts from main_context if
+    // VvIndicatorDrawingLayer needs them in the future
+
+    vv::VvIndicatorDrawingLayer::VvIndicatorDrawingLayer vv_layer;
+    vv_layer.draw(layer_context);  // Modifies layer_context.output_image_
+
+    input_with_vv = layer_context.getOutputImage();  // Get the modified image
+  } else {
+    input_with_vv = cv::Mat();  // Ensure it's an empty Mat if input was empty
   }
 
-  cv::Mat calibrated_with_line = calibrated_image.clone();
-  if (!calibrated_with_line.empty()) {
+  cv::Mat calibrated_with_line;
+  if (!calibrated_image.empty()) {
+    calibrated_with_line = calibrated_image.clone();
     cv::line(
         calibrated_with_line,
         cv::Point(0, calibrated_with_line.rows /
@@ -37,6 +55,8 @@ cv::Mat prepare_top_row(
                       static_cast<int>(vv::ImageConstants::kDivideByTwo)),
         vv::ImageConstants::Colors::kBlack,
         vv::VisualizationConstants::kLineThickness, cv::LINE_AA);
+  } else {
+    calibrated_with_line = cv::Mat();  // Ensure it's an empty Mat
   }
 
   cv::Mat top_row_result;
@@ -47,6 +67,7 @@ cv::Mat prepare_top_row(
   } else if (!calibrated_with_line.empty()) {
     top_row_result = calibrated_with_line;
   }
+  // If both are empty, top_row_result will be an empty Mat by default.
   return top_row_result;
 }
 
@@ -119,8 +140,7 @@ auto create_visualization(VisualizationContext& context) -> cv::Mat {
   float fps = context.getFps();
 
   // --- Original logic using data from context ---
-  cv::Mat top_row =
-      prepare_top_row(input_image, calibrated_image, vv_result, vv_params);
+  cv::Mat top_row = prepare_top_row(context);
 
   cv::Mat middle_row = vv::visualization::create_hog_images_row(hog_result);
 
