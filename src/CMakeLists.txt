@@ -1,6 +1,7 @@
 # Add source files
 set(SOURCES
     main.cc
+    app/runner.cc # Added Runner implementation
     io/input_handler.cc
     io/output_handler.cc
     processing/hog_processor.cc

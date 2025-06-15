@@ -15,7 +15,7 @@ class Runner {
   Runner(Runner&&) noexcept = default;
   Runner& operator=(Runner&&) noexcept = default;
 
-  auto Run() -> int;
+  auto Run() const -> int;
 
  private:
   class Impl;  // Forward declaration for pImpl
